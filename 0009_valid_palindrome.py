@@ -1,19 +1,20 @@
 """
-Problem: 125. Valid Palindrome (LeetCode)
-URL: https://leetcode.com/problems/valid-palindrome/
+Problem: 9. Palindrome Number (LeetCode)
+URL: https://leetcode.com/problems/palindrome-number/
 Difficulty: Easy
-Category: Two Pointers
+Category: Math / String
 
 Complexity:
-- Time: O(N) - 文字列を左右から1回走査
-- Space: O(1) - ポインタ管理のみで追加メモリ不要
+- Time: O(log10(N)) - 整数の桁数K（K = floor(log10(N)) + 1）に比例した文字列変換・反転・比較処理
+- Space: O(log10(N)) - 桁数K分の文字列および反転文字列のメモリを確保
 
 Approach:
-1. 学習中のため不明
-2. 学習中のため不明
-3. 学習中のため不明
+1. str(x) を用いて整数を文字列に変換する
+2. スライス構文 s[::-1] を使って文字列を反転させる
+3. 元の文字列 s と反転文字列 s[::-1] が一致するかを比較して判定する（負の数はマイナス記号により自動的に False となる）
 """
 
 class Solution:
-    def isValid(self, s: str) -> bool:
-        
+    def isPalindrome(self, x: int) -> bool:
+        s = str(x)
+        return s == s[::-1]
