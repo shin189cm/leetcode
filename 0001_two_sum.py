@@ -1,52 +1,29 @@
 """
-Problem: 0232_implement_queue_using_stacks.py
-URL: https://leetcode.com/problems/implement-queue-using-stacks/
+Problem: 0001_two_sum.py
+URL: https://leetcode.com/problems/two-sum/
 Difficulty: Easy
-Category: Stack, Design, Queue
+Category: Hash Table, Array
 
 Complexity:
-- Time:
-  - push: O(1) - in_stack への末尾追加のみ
-  - pop / peek: 償却 O(1) - 最悪時は in_stack から out_stack への全移動で O(N) だが、各要素の移動回数は高々2回のため
-  - empty: O(1) - 両スタックの長さ判定のみ
-- Space: O(N) - 保持する全要素数 N を2つのスタックで分散して保持するため
+- Time: O(N) - 辞書へのアクセス・挿入は平均O(1)で、配列を1度走査するため
+- Space: O(N) - 最大でN個の要素を辞書に格納するため
 
 Approach:
-1. 要素受け付け用の in_stack と、取り出し用の out_stack の2つのスタックを用意する。
-2. push(x): in_stack に要素を append する。
-3. pop() / peek():
-   - out_stack が空の場合のみ、in_stack の全要素を pop して out_stack に append（順序を反転して FIFO を実現）。
-   - out_stack の末尾（Top）から値を取り出す / 参照する。
-4. empty(): in_stack と out_stack の両方が空であるか判定する。
+1. 走査済みの値とそのインデックスを保持するハッシュマップ (seen) を用意する。
+2. 配列を先頭から走査し、target - num (補数) が seen に存在するか確認する。
+3. 存在すれば [seen[complement], i] を返し、存在しなければ現在の値とインデックスを seen に登録する。
 """
 
-class MyQueue:
+from typing import List
 
-    def __init__(self):
-        # 2つのスタックを用意
-        self.in_stack = []
-        self.out_stack = []
 
-    def push(self, x: int) -> None:
-        # 要素の追加は in_stack の末尾へ
-        self.in_stack.append(x)
+class Solution:
 
-    def pop(self) -> int:
-        # out_stack に要素を準備してから末尾を取り出す
-        self._move()
-        return self.out_stack.pop()
-
-    def peek(self) -> int:
-        # out_stack に要素を準備してから末尾を参照する
-        self._move()
-        return self.out_stack[-1]
-
-    def empty(self) -> bool:
-        # 両方のスタックが空なら Queue は空
-        return len(self.in_stack) == 0 and len(self.out_stack) == 0
-
-    def _move(self) -> None:
-        # out_stack が空の場合のみ、in_stack の全要素を移し替えて反転させる
-        if not self.out_stack:
-            while self.in_stack:
-                self.out_stack.append(self.in_stack.pop())
+  def twoSum(self, nums: List[int], target: int) -> List[int]:
+    seen = {}
+    for i, num in enumerate(nums):
+      complement = target - num
+      if complement in seen:
+        return [seen[complement], i]
+      seen[num] = i
+    return []
