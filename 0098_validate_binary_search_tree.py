@@ -34,6 +34,7 @@ class TreeNode:
 
 class Solution:
     def isValidBST(self, root: Optional[TreeNode]) -> bool:
+       # 【ステップ1】関数の定義（設計図を作るだけ。この時点では中身は動かない）
         def validate(node: Optional[TreeNode], low: float, high: float) -> bool:
             # 空ノードは有効な BST
             if not node:
@@ -45,5 +46,7 @@ class Solution:
 
             # 左に進むときは上限を node.val に狭め、右に進むときは下限を node.val に狭める
             return validate(node.left, low, node.val) and validate(node.right, node.val, high)
-
+           
+        # 【ステップ2】ここで初めて実行開始！
+        # root を渡し、範囲を (-∞, +∞) に設定して最初の1回目をキックする
         return validate(root, float('-inf'), float('inf'))
