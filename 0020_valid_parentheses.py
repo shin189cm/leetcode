@@ -17,15 +17,22 @@ Approach:
 
 class Solution:
     def isValid(self, s: str) -> bool:
-        mapping = {')': '(', '}': '{', ']': '['}
-        stack = []
-        
+        seen = []
+        bra = {')': '(', '}':'{', ']': '['}
+
+        if not s:
+            return False
+
         for char in s:
-            if char in mapping:
-                top_element = stack.pop() if stack else '#'
-                if mapping[char] != top_element:
-                    return False
+            if not char in bra:
+                seen.append(char)
+
             else:
-                stack.append(char)
-                
-        return not stack
+                if not seen:
+                    return False
+                if bra[char] == seen[-1]:
+                    seen.pop()
+                else:
+                    return False
+        if not seen:
+            return True
