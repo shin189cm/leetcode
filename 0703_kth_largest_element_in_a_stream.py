@@ -6,27 +6,37 @@ Category: Heap (Priority Queue), Data Stream, Design
 
 Complexity:
 - Time:
-    - __init__: O(N log k) - 初期リスト nums（長さ N）の各要素をサイズ k の最小ヒープに順次追加するため。
-      （※ O(N + (N - k) log N) などのヒープ構築アプローチもあるが、O(N log k) で十分高速）
-    - add: O(log k) - サイズ k のヒープに対する1回の heappush / heappop 操作に比例するため。
-- Space: O(k) - ヒープ内に常に上位 k 個の要素のみを保持するため。
+    - __init__: O(N + (N - k) log N) - 初期リスト nums（長さ N）を一括で heapify (O(N)) し、
+      サイズが k 個になるまで余分な最小値を pop ((N - k) log N) するため。
+      （※ 1件ずつ add を呼ぶ O(N log k) アプローチよりオーバーヘッドが少なく高速）
+    - add: 最悪 O(log k)、最良 O(1)
+        - ヒープサイズ < k の場合: heappush により O(log k)
+        - val > heap[0] の場合: heapreplace による木の下り走査1回のみで O(log k)
+        - val <= heap[0] の場合: 既存の上位 k 個に影響しないため、ヒープ操作をスキップして O(1) で即座に返却
+- Space: O(k) または O(N)
+    - 初期化時に nums をそのまま参照する場合、ヒープ縮減前は O(N)、縮減後は上位 k 個のみを保持するため O(k)。
 
 Approach:
 1. 「k番目に大きい値」を高速に得るため、サイズ k の最小ヒープ（Min-Heap）を維持する。
+   根（self.heap[0]）が常に「上位 k 個の中の最小値 ＝ 全体で k 番目に大きい値」となる。
 2. __init__(k, nums):
-    - インスタンス変数 self.k に k を保存し、self.heap を空リストとして初期化。
-    - nums の各要素を add(num) を通じてヒープに追加（または全要素を heapify してから要素数が k になるまで pop）。
+    - self.heap に nums を束縛し、heapq.heapify で線形時間 O(N) でインプレースにヒープ化。
+    - len(self.heap) > k の間、heapq.heappop で最小値を削り落とし、上位 k 個のみを残す。
 3. add(val):
-    - ヒープに val を追加する（heapq.heappush）。
-    - ヒープのサイズが k を超えた場合、最小値を1つ取り除く（heapq.heappop）。
-    - これにより、ヒープ内には「これまでの全要素の中で大きい順に k 個」だけが残り、その最小値（self.heap[0]）が全体で k 番目に大きい値となる。
+    - ヒープサイズが k 未満なら、そのまま heapq.heappush(self.heap, val)。
+    - ヒープサイズが k の場合:
+        - val <= self.heap[0] なら、新要素は上位 k 個に入り得ないため何もしない（O(1) スキップ）。
+        - val > self.heap[0] なら、heapq.heapreplace(self.heap, val) を実行。
+          （heappush + heappop のように木を往復せず、下り1走査で最小値破棄と新要素挿入を完了させる）
     - self.heap[0] を返す。
 
 memo:
 - Python の heapq は最小ヒープ（Min-Heap）のみを標準提供する。
-  「最大値の上位 k 個」を求める際、サイズ k の最小ヒープを使うと根（インデックス 0）が「上位 k 個中の最小 ＝ 全体で k 番目に大きい値」となり、相性が最も良い。
-- 全要素を保持してソートすると add ごとに O(M log M)（M は累積要素数）かかり、ストリーム処理ではスケールしない。
-- len(self.heap) > self.k のときに pop する方針を徹底すれば、空間・時間ともに O(log k) に抑え込める。
+  「上位 k 個の最大値を追跡する」タスクに対して「サイズ k の最小ヒープ」を構えると、
+  最も小さい境界値（k 番目の値）が根に露出するため、極めて相性が良い。
+- 1件ずつ push & pop を繰り返す素朴な実装と比較して、以下の2点で最適化している:
+    1. 初期化時に関数呼び出しと逐次 push を排除し、C言語レベルで一括処理される heapify を採用。
+    2. 追加値が k 番目以下のケースを O(1) で刈り取り、入替時も heapreplace で木の走査回数を半減。
 """
 
 import heapq
@@ -37,21 +47,24 @@ class KthLargest:
 
     def __init__(self, k: int, nums: List[int]):
         self.k = k
-        self.heap: List[int] = []
+        self.heap = nums
 
-        # 初期データをサイズ k のヒープに流し込む
-        for num in nums:
-            self.add(num)
+        # リスト全体を一括でヒープ化 (O(N))
+        heapq.heapify(self.heap)
 
-    def add(self, val: int) -> int:
-        # 新しい要素を最小ヒープに追加
-        heapq.heappush(self.heap, val)
-
-        # 要素数が k を超えたら最小値を削り、常に上位 k 個を維持
-        if len(self.heap) > self.k:
+        # 要素数が k 個になるまで最小値を削り、上位 k 個のみを維持
+        while len(self.heap) > self.k:
             heapq.heappop(self.heap)
 
-        # 最小ヒープの根（先頭）が上位 k 個の中の最小値 ＝ k 番目に大きい値
+    def add(self, val: int) -> int:
+        if len(self.heap) < self.k:
+            # 初期要素数が k 未満のケースに対応
+            heapq.heappush(self.heap, val)
+        elif val > self.heap[0]:
+            # push と pop を個別に行わず、根の置換と木の下り走査1回で済ませる
+            heapq.heapreplace(self.heap, val)
+        # val <= self.heap[0] の場合はヒープを更新する必要がないため O(1) で通過
+
         return self.heap[0]
 
 
