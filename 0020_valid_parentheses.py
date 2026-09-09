@@ -19,13 +19,13 @@ class Solution:
     def isValid(self, s: str) -> bool:
         mapping = {')': '(', '}': '{', ']': '['}
         stack = []
-        
+
         for char in s:
             if char in mapping:
-                top_element = stack.pop() if stack else '#'
-                if mapping[char] != top_element:
+                # スタックが空、または直近の開き括弧と不一致なら不正
+                if not stack or stack.pop() != mapping[char]:
                     return False
             else:
                 stack.append(char)
-                
+
         return not stack
