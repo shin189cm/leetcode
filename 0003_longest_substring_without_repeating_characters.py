@@ -22,9 +22,11 @@ class Solution:
         left = 0
 
         for right, char in enumerate(s):
+            # 重複する文字に出会い、leftを更新する場合
             if char in char_index_map and char_index_map[char] >= left:
                 left = char_index_map[char] + 1
 
+            # 新規の文字に出会う場合
             char_index_map[char] = right
             max_len = max(max_len, right - left + 1)
 
