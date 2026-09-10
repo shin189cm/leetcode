@@ -7,7 +7,8 @@ Category: Stack, Design, Queue
 Complexity:
 - Time:
   - push: O(1) - in_stack への末尾追加のみ
-  - pop / peek: 償却 O(1) - 最悪時は in_stack から out_stack への全移動で O(N) だが、各要素の移動回数は高々2回のため
+  - pop / peek: 償却 O(1) - 最悪時は in_stack から out_stack への全移動で O(N) だが、各要素の移動回数は高々2回のため。
+    最悪の操作順序を選んだとしても、連続操作の合計コストが保証される
   - empty: O(1) - 両スタックの長さ判定のみ
 - Space: O(N) - 保持する全要素数 N を2つのスタックで分散して保持するため
 
