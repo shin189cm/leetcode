@@ -6,9 +6,10 @@ Category: Heap (Priority Queue), Data Stream, Design
 
 Complexity:
 - Time:
-    - __init__: O(N + (N - k) log N) - 初期リスト nums（長さ N）を一括で heapify (O(N)) し、
-      サイズが k 個になるまで余分な最小値を pop ((N - k) log N) するため。
-      （※ 1件ずつ add を呼ぶ O(N log k) アプローチよりオーバーヘッドが少なく高速）
+    - __init__: O(N + (N - k) log N)
+        - 初期リスト nums（長さ N）を一括で heapify (O(N)) し、
+          サイズが k 個になるまで余分な最小値を pop ((N - k) log N) するため。
+          （※ 1件ずつ add を呼ぶ O(N log k) アプローチよりオーバーヘッドが少なく高速）
     - add: 最悪 O(log k)、最良 O(1)
         - ヒープサイズ < k の場合: heappush により O(log k)
         - val > heap[0] の場合: heapreplace による木の下り走査1回のみで O(log k)
