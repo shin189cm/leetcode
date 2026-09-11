@@ -38,7 +38,6 @@ memo:
 
 from typing import List
 
-
 class Solution:
     def coinChange(self, coins: List[int], amount: int) -> int:
         # dp[i] は金額 i を構成するための最小コイン数
@@ -52,3 +51,63 @@ class Solution:
                     dp[i] = min(dp[i], dp[i - coin] + 1)
 
         return dp[amount] if dp[amount] <= amount else -1
+
+# =============================================================================
+# 【参考情報】Bottom-Up vs Top-Down (Memoization) の比較と使い分け
+# =============================================================================
+"""
+[1] Top-Down 実装例 (メモ化再帰)
+-------------------------------------------------------------------------------
+from functools import cache
+
+class SolutionTopDown:
+    def coinChange(self, coins: list[int], amount: int) -> int:
+        @cache
+        def dfs(rem: int) -> int:
+            if rem == 0:
+                return 0
+            if rem < 0:
+                return float("inf")
+
+            res = float("inf")
+            for coin in coins:
+                res = min(res, dfs(rem - coin) + 1)
+            return res
+
+        ans = dfs(amount)
+        return ans if ans != float("inf") else -1
+
+
+[2] なぜ本問では Bottom-Up の方が高速なのか？ (オーダーは同じだが定数倍で大差)
+-------------------------------------------------------------------------------
+1. 関数フレームのオーバーヘッド:
+   - Top-Down: 再帰呼び出しごとにスタックフレームの生成・破棄が発生する。
+   - Bottom-Up: 単一の関数スコープ内でループを回すため、フレーム生成のコストがゼロ。
+
+2. 配列直接参照 vs ハッシュテーブル探索:
+   - Top-Down: @cache は内部で dict (ハッシュマップ) を利用。
+     引数のハッシュ計算・衝突解決・キー検索のコストが毎度かかる。
+   - Bottom-Up: dp[i] による連続メモリ領域への直接インデックスアクセス (O(1)) のため極めて高速。
+
+3. CPUキャッシュ局所性:
+   - Bottom-Up は 0 から amount まで順次メモリアドレスを走査するため、L1/L2 キャッシュヒット率が高い。
+
+4. 再帰深度制限 (RecursionLimit):
+   - Python のデフォルト再帰上限は約 1000 回。
+   - amount が 10,000 かつ 1 コインを含むようなケースでは、Top-Down は RecursionError のリスクがある。
+
+
+[3] コーディング面接・実戦での使い分け指針 (Design Decision)
+-------------------------------------------------------------------------------
+◆ Bottom-Up を優先すべきケース:
+  - 状態空間が「密 (Dense)」なとき:
+    0 から目標値までの全状態をほぼ確実に計算する必要がある場合 (例: Coin Change, Climbing Stairs)。
+  - 空間計算量を O(1) や O(target) に圧縮したいとき (ローリング配列や逆順走査)。
+  - 実行速度・メモリ消費を最重視するとき (Python では特に顕著)。
+
+◆ Top-Down を検討すべきケース:
+  - 状態空間が「疎 (Sparse)」なとき:
+    全体の探索空間は広大 (例: 10^9) だが、実際に到達可能な状態がごく一部に限られる場合。
+    → 不要な状態の計算を丸ごとスキップできるため、Top-Down の方が計算量が減る。
+  - 状態遷移が複雑な木構造 / ゲーム木 (Mini-Max など) で、再帰の直観性が高いとき。
+"""
