@@ -79,3 +79,62 @@ class Solution:
                 return True
                 
         return dp[target]
+
+# =============================================================================
+# 【参考情報】Python の @cache（メモ化再帰）を用いたトップダウン実装
+#
+# ■ 本質的な構造の比較:
+#   - トップダウン:
+#       「選ぶ / 選ばない」の決定木を辿るため、状態キーとして (i, rem) の
+#       2次元タプルを保持し続ける必要がある（状態数: O(N * target)）。
+#   - ボトムアップ:
+#       逆順走査により過去の状態を破壊せずに上書きできるため、i の次元を
+#       完全に消去して 1次元配列（サイズ: target + 1）に圧縮できる。
+#
+# ■ トップダウンが低速になる理由:
+#   1. キャッシュのキー生成・検索コスト:
+#      (i, rem) のタプル生成およびハッシュテーブル（dict）走査が毎回走る。
+#   2. 関数呼び出しのオーバーヘッド:
+#      再帰の深さに応じたスタックフレームの生成・破棄コストが大きい。
+#   3. メモリ局所性の低下:
+#      配列の連続メモリアクセスに比べ、キャッシュヒット率が落ちる。
+# =============================================================================
+
+"""
+from functools import cache
+from typing import List
+
+class SolutionTopDown:
+    def canPartition(self, nums: List[int]) -> bool:
+        total_sum = sum(nums)
+
+        # 奇数は等分不可
+        if total_sum % 2 != 0:
+            return False
+
+        target = total_sum // 2
+
+        # 最大値が target を超えていたら不可
+        if max(nums) > target:
+            return False
+
+        # 探索の高速化: 大きい数から試した方が target 超過の枝刈りが早く効く
+        nums.sort(reverse=True)
+
+        @cache
+        def dfs(i: int, rem: int) -> bool:
+            # 基底条件（成功）: ちょうど target 分を引いて 0 に到達
+            if rem == 0:
+                return True
+
+            # 基底条件（失敗）: 超過した、または全要素を見終わった
+            if rem < 0 or i == len(nums):
+                return False
+
+            # 1. nums[i] を選ぶ (rem - nums[i])
+            # 2. nums[i] を選ばない (rem そのまま)
+            # どちらか一方で True が出れば短絡評価（or）で即終了
+            return dfs(i + 1, rem - nums[i]) or dfs(i + 1, rem)
+
+        return dfs(0, target)
+"""
