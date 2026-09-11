@@ -45,21 +45,23 @@ class Solution:
         # -------------------------------------------------------------
         # パターンA: C実装の最適化を活用（最も簡潔・k << N で極めて高速）
         # 内部でサイズ k の最小ヒープを維持し、上位 k 個のリストを取得して末尾を返す
+        # 遅かった。とても。
         # -------------------------------------------------------------
-        return heapq.nlargest(k, nums)[-1]
+        # return heapq.nlargest(k, nums)[-1]
 
         # -------------------------------------------------------------
         # 別解1: 手動ループによるサイズ k の最小ヒープ維持（heapreplace 版）
+        # これが最も早かった
         # -------------------------------------------------------------
-        # min_heap = nums[:k]
-        # heapq.heapify(min_heap)
-        #
-        # for num in nums[k:]:
-        #     # 現在の k 番目の値より大きい場合のみ、根を上書きして Sift-Down 1回で再配置
-        #     if num > min_heap[0]:
-        #         heapq.heapreplace(min_heap, num)
-        #
-        # return min_heap[0]
+        min_heap = nums[:k]
+        heapq.heapify(min_heap)
+        
+        for num in nums[k:]:
+            # 現在の k 番目の値より大きい場合のみ、根を上書きして Sift-Down 1回で再配置
+            if num > min_heap[0]:
+                heapq.heapreplace(min_heap, num)
+        
+        return min_heap[0]
 
         # -------------------------------------------------------------
         # パターンB: 一括 heapify + 削り落とし（N - k << N で有利）
