@@ -38,15 +38,19 @@ class AdalineSGD(object):
             self._initialize_weights(X.shape[1])
         if y.ravel().shape[0] > 1:
             for xi, target in zip(X, y):
-                self._update_weights(X, y)
+                self._update_weights(xi, y)
+        else:
+            self._update_weights(X, y)
         return self
         
-    # 重みベクトルが同じ値に戻らないようにするためのシャッフル
+    # 学習データが固定された順序で循環することによるリミットサイクルを防ぐ
     def _shuffle(self, X, y):
         r = self.rgen.permutation(len(y))
         return X[r], y[r]
         
-    # 重みをわずかに0からずらして初期化しないと、学習率イータが、重みベクトルの向きと大きさのうち、大きさにしか影響しなくなってしまう
+    # パーセプトロンの場合は、重みをわずかに0からずらして初期化する必要あり。
+    # そうしないと、学習率イータが、重みベクトルの向きと大きさのうち、大きさにしか影響しなくなってしまう。
+    # ADALINEの場合は、0初期化でok。目的関数が二乗誤差和で凸関数だから。
     def _initialize_weights(self, m):
         self.rgen = np.random.default_rng(self.random_state)
         self.w_ = self.rgen.normal(loc=0, scale=0.01, size=1 + m)
@@ -55,8 +59,8 @@ class AdalineSGD(object):
     # xiごとに、係数のw_iを更新する
     def _update_weights(self, xi, target):
         output = self.activation(self.net_input(xi))
-        error = (target - output)
-        self.w_[1:] += self.eta * xi.dot(error) # x_1からx_mまでの係数を算出。m+1の大きさの1次元配列の、idx=1からidx=m+1までの部分配列。 
+        error = target - output
+        self.w_[1:] += self.eta * xi.dot(error) # x_1からx_mまでの係数を算出。m+1の大きさの1次元配列の、idx=1からidx=mまでの部分配列。 
         self.w_[0] += self.eta * error # 定数部分の値を算出。m+1の大きさの配列の初項。
         cost = 0.5 * error**2 # 誤差平方和
         return cost
@@ -65,7 +69,7 @@ class AdalineSGD(object):
     def net_input(self, X):
         return np.dot(X, self.w_[1:]) + self.w_[0] # 要素数nの、1次元配列が返される
         
-    # ロジスティック回帰などの場合、ここで数値処理が入る
+    # ロジスティック回帰などの場合、ここで数値処理が入る。ｍ
     def activation(self, z):
         return z
     
