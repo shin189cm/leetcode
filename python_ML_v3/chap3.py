@@ -35,25 +35,25 @@ class LogisticRegressionGD(object):
         for i in range(self.n_iter):
             net_input = self.net_input(X)
             output = self.activation(net_input)
-            errors = (y - output)
-            self.w_[1:] += self.eta * X.T.dot(errors)
-            self.w_[0] += self.eta * errors.sum()
+            errors = (y - output) # errorsは(n_examples, )のベクトル
+            self.w_[1:] += self.eta * X.T.dot(errors) # (n_features, )wの偏微分で出てくるのはxi。行列.dot(係数ベクトル)
+            self.w_[0] += self.eta * errors.sum() # スカラー。errorsのsumを取る。
             
             # アップデートポイント
-            cost = -y.dot(np.log(output)) - ((1 - y).dot(np.log(1 - output)))
+            cost = -y.dot(np.log(output)) - ((1 - y).dot(np.log(1 - output))) # dotで内積計算
             self.cost_.append(cost)
         return self
     
     def net_input(self, X):
-        return np.dot(X, self.w_[1:]) + self.w_[0]
+        return np.dot(X, self.w_[1:]) + self.w_[0] # つまり z
 
     def activation(self, z):
         # アップデートポイント
-        return 1. / (1. + np.exp(-np.clip(z, -250, 250)))
+        return 1. / (1. + np.exp(-np.clip(z, -250, 250))) # float64の限界は709.78。相対制度観点だと36で十分。
 
     def predict(self, X):
         """Return class label after unit step"""
-        return np.where(self.net_input(X) >= 0.0, 1, 0)
+        return np.where(self.net_input(X) >= 0.0, 1, 0) # スカラーではないので、三項演算子を使用できない。
 
 
 # 描画用の関数
