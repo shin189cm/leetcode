@@ -60,7 +60,7 @@ class AdalineSGD(object):
     def _update_weights(self, xi, target):
         output = self.activation(self.net_input(xi))
         error = target - output
-        self.w_[1:] += self.eta * xi.dot(error) # x_1からx_mまでの係数を算出。m+1の大きさの1次元配列の、idx=1からidx=mまでの部分配列。 
+        self.w_[1:] += self.eta * xi * error # x_1からx_mまでの係数を算出。m+1の大きさの1次元配列の、idx=1からidx=mまでの部分配列。 
         self.w_[0] += self.eta * error # 定数部分の値を算出。m+1の大きさの配列の初項。
         cost = 0.5 * error**2 # 誤差平方和
         return cost
