@@ -32,11 +32,12 @@ Approach:
 2. ヘルパー関数 helper(left, right) の定義
     - ベースケース: left > right のとき、構築すべきノードは存在しないため None を返す。
     - 中央インデックスの決定: mid = (left + right) // 2
-    - ルート生成: root = TreeNode(nums[mid])
+    - ノード（部分木のルート）生成: 
+        - node = TreeNode(nums[mid])
     - 再帰分割:
-        - root.left = helper(left, mid - 1)
-        - root.right = helper(mid + 1, right)
-    - root を返却する。
+        - node.left = helper(left, mid - 1)
+        - node.right = helper(mid + 1, right)
+    - node を返却する。
 
 memo:
 - 「配列スライス（nums[:mid]）」を使うとコードは短くなるが、スライスの都度リストの複製コスト O(len) が発生し
