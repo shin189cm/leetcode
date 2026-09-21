@@ -28,11 +28,15 @@ Approach:
       走査開始前に {0: 1}（和が 0 となる状態が 1 回存在）を登録しておく
 
 memo:
+- 「先頭からの2つの和（累積和）の差」が k と一致する組み合わせを探す問題。
+- 現在の累積和から k を超えた分（current_sum - k）について、
+  「先頭からの和がちょうどその余分な値と一致する区間」を過去から切り落とす（引き換える）ことで、
+  末尾に current を含む区間の合計を k にできる。
 - 「配列内の連続する部分配列の和」というキーワードで、要素に負数が含まれる場合、
-  Sliding Window（しゃくとり法）は単調性が失われるため使用できない
+  Sliding Window（しゃくとり法）は単調性が失われるため使用できない。
 - 本問は LeetCode 1番 (Two Sum) と本質的に全く同じ発想であり、
-  「走査しながら、過去に目的の差分 (current_sum - k) が存在したかを連想配列で探す」定石パターン
-- この「累積和 + ハッシュマップ」の組み合わせは、区間和に関する問題（特に余りの和、偶奇、特定値の一致など）で頻出
+  「走査しながら、過去に目的の差分 (current_sum - k) が存在したかを連想配列で探す」定石パターン。
+- この「累積和 + ハッシュマップ」の組み合わせは、区間和に関する問題（特に余りの和、偶奇、特定値の一致など）で頻出。
 """
 
 from typing import List
@@ -50,13 +54,14 @@ class Solution:
 
         for num in nums:
             current_sum += num
-            
-            # current_sum - prefix_sum = k  =>  prefix_sum = current_sum - k
-            # 過去に (current_sum - k) となる累積和が存在した回数分だけ、和が k となる部分配列が存在する
+
+            # 先頭からの2つの和の差が k と一致する組み合わせを探す
+            # current_sum から k を引いた余分な値 (target) が過去の累積和にあれば、
+            # その先頭区間を引き換える（切り落とす）ことで合計 k の連続部分配列が作れる
             target = current_sum - k
             if target in prefix_sum_count:
                 count += prefix_sum_count[target]
-            
+
             # 現在の累積和をハッシュマップに記録
             prefix_sum_count[current_sum] += 1
 
