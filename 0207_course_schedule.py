@@ -45,24 +45,32 @@ from collections import deque
 
 class Solution:
     def canFinish(self, numCourses: int, prerequisites: list[list[int]]) -> bool:
+        # そのコースを履修することが必要なコースリスト
         graph: list[list[int]] = [[] for _ in range(numCourses)]
+        # そのコースを履修するために必要な他のコース数
         in_degree: list[int] = [0] * numCourses
 
         for dest, src in prerequisites:
             graph[src].append(dest)
             in_degree[dest] += 1
 
+        # 事前に履修が不要なコース。最初に履修する。履修できるコースリスト
         queue: deque[int] = deque(
             course for course in range(numCourses) if in_degree[course] == 0
         )
+        # 履修できたコース数
         completed_courses = 0
 
+        # 履修できるコースがあるうちは
         while queue:
+            # 1コース履修
             curr = queue.popleft()
             completed_courses += 1
 
+            # 1コース履修したことで、履修できるようになるかもしれないコースたち
             for next_course in graph[curr]:
                 in_degree[next_course] -= 1
+                # もし履修できるようになったら履修できるコースリスト(queue)に追加
                 if in_degree[next_course] == 0:
                     queue.append(next_course)
 
