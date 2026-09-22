@@ -1,22 +1,66 @@
+"""Problem: 207_course_schedule.py
+
+URL: https://leetcode.com/problems/course-schedule/
+Difficulty: Medium
+Category: Graph, Topological Sort, Breadth-First Search (BFS)
+
+Complexity:
+- Time: O(V + E)
+    - V はコース数（numCourses）、E は前提条件の数（prerequisites の長さ）
+    - グラフ（隣接リスト）および入次数配列の構築に O(E)
+    - 各ノードはキューに高々1回追加・取り出しされるため O(V)
+    - 各エッジは探索中に高々1回走査されるため O(E)
+    - 全体として線形時間 O(V + E) で完了する
+- Space: O(V + E)
+    - 隣接リスト形式のグラフ表現に O(V + E)
+    - 入次数管理用の配列に O(V)
+    - BFS用のキューに最大 O(V)
+
+Approach:
+1. 問題を有向グラフにおける「閉路検出（Cycle Detection）」と捉える
+    - コースを頂点、前提条件 [a, b]（b を受講後に a が受講可能）を有向エッジ b -> a とする
+    - 全てのコースが履修可能である条件は、グラフが有向非巡回グラフ（DAG）であること
+2. Kahn's Algorithm（入次数を用いた BFS によるトポロジカルソート）
+    - 各コースの入次数（前提条件の残数）をカウントする
+    - 入次数が 0 のコース（直ちに履修可能なコース）をキューに投入する
+    - キューからコースを取り出すたびに履修完了カウントを増やし、そのコースに依存する
+      後続コースの入次数を 1 減らす
+    - 入次数が 0 になった後続コースを逐次キューに追加する
+3. 判定
+    - 最終的に履修完了したコース数が numCourses と一致すれば True
+    - 一致しなければグラフ内に閉路が存在し、相互依存で受講不能なコースがあるため False
+
+memo:
+- 制約が V <= 2000, E <= 5000 であるため、O(V^2) の隣接行列アプローチや推移閉包の更新では
+  メモリ・時間ともに非効率となりやすい。疎グラフであることを活かして隣接リスト + O(V + E) を採用する
+- 閉路検出は DFS（3色塗り分け: White/Gray/Black）でも O(V + E) で実装可能だが、
+  BFS（Kahn's Algorithm）は再帰のスタックオーバーフローのリスクがなく、直感的でバグが混入しにくい
+"""
+
+from collections import deque
+
+
 class Solution:
     def canFinish(self, numCourses: int, prerequisites: list[list[int]]) -> bool:
-        """
-        コースを受講する条件があるんだ。
-        aをうけたい場合、事前にbを受講しておくこと。
-        条件に対して、条件を満たすようにコースを受講できるか？問われている。
-        prerequisitesを処理して、順序を作成し、
-        エラーが出た場合はFALSE、出なかった場合はTRUEを返す。
-        大小関係が正確であれば、要素単位で順序を出す必要はない。
-        何を保存する？
-        constraint
-        コース数は2000が最大。3乗すると、4*10^6でTLEにはならない。
-        制約は、5000。
-        コース×コースの星取表を作って、そこで優劣関係を保持するのかな。
-        1つずつ追加していって、矛盾が発生した瞬間にreturn falseかな。
-        prerequisitesの要素を順に見て行って、
-        含まれる要素があるたびに、
-        （1）b>aはすでに規定されていないか？
-        をチェックする。
-        また、
-        a>bが追加されるタイミングで、b>cがすでに存在した場合は、a>cも追加する。
-        """
+        graph: list[list[int]] = [[] for _ in range(numCourses)]
+        in_degree: list[int] = [0] * numCourses
+
+        for dest, src in prerequisites:
+            graph[src].append(dest)
+            in_degree[dest] += 1
+
+        queue: deque[int] = deque(
+            course for course in range(numCourses) if in_degree[course] == 0
+        )
+        completed_courses = 0
+
+        while queue:
+            curr = queue.popleft()
+            completed_courses += 1
+
+            for next_course in graph[curr]:
+                in_degree[next_course] -= 1
+                if in_degree[next_course] == 0:
+                    queue.append(next_course)
+
+        return completed_courses == numCourses
