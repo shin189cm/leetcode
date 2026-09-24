@@ -74,7 +74,7 @@ class Solution:
     while curr or stack:
       # 1. 行けるところまで左に潜る（最小値を探索）
       while curr:
-        stack.append(curr)
+        stack.append(curr) # TreeNode型のcurrがappendされている。よって後続curr.rightで右部分木も探索できる。
         curr = curr.left
 
       # 2. 最も左にあるノードを取り出す（昇順で次の値）
