@@ -20,7 +20,7 @@ Approach:
     - nums[mid] > nums[right] の場合:
         - mid は「左側の大きい方の部分配列」に属している。
         - 最小値は mid より確実に右側にあるため、left = mid + 1 とする。
-    - nums[mid] < nums[right] の場合:
+    - nums[mid] <= nums[right] の場合:
         - mid は「右側の小さい方の部分配列」に属している。
         - mid 自身が最小値である可能性を含んでいるため、right = mid とする（mid - 1 にしない）。
 3. 収束条件
@@ -31,7 +31,7 @@ memo:
     - 配列が回転されていない場合（完全な昇順の場合）、nums[mid] < nums[left] という判定は破綻するが、
       nums[right] を基準にすれば「常に右端より小さいなら左側（mid含む）へ縮退」というロジックが成立する。
 - 探索区間を right = mid - 1 としない理由:
-    - nums[mid] < nums[right] のとき、nums[mid] 自体が配列全体の最小値である可能性があるため、
+    - nums[mid] <= nums[right] のとき、nums[mid] 自体が配列全体の最小値である可能性があるため、
       探索範囲から mid を除外してはならない。
 """
 
