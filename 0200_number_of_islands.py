@@ -62,6 +62,11 @@ class Solution:
             dfs(r - 1, c)
             dfs(r, c + 1)
             dfs(r, c - 1)
+            """
+            # 別解。xとyのタイポ防止用
+            for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                dfs(r + dr, c + dc)
+            """
         
         for r in range(rows):
             for c in range(cols):
