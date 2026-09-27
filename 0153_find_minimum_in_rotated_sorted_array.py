@@ -11,7 +11,6 @@ class Solution:
         もしnums[left]>nums[mid]だったら、left=mid。これはleftが最小値の可能性があるから。
         
         rightを、比較対象にする。
-
         """
         # nums.lengthは1以上なので、ベースケースは省略
         left, right = 0, len(nums)-1
