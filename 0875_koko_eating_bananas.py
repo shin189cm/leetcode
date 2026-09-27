@@ -43,13 +43,16 @@ class Solution:
         left = 1
         right = max(piles)
 
+        # 収束型。<=にせず、<とする場合
         while left < right:
             mid = (left + right) // 2
             total_hours = sum((pile + mid - 1) // mid for pile in piles)
 
             if total_hours <= h:
+                # midは解の後方のため、rightに含める。
                 right = mid
             else:
+                # midは解とならない（本問では明らかにhに間に合わない）ため、leftにはmid+1を代入
                 left = mid + 1
 
         return left
