@@ -39,6 +39,7 @@ from collections import defaultdict
 
 class Solution:
     def groupAnagrams(self, strs: list[str]) -> list[list[str]]:
+        # ソート版
         groups = defaultdict(list)
         
         for s in strs:
@@ -46,3 +47,21 @@ class Solution:
             groups[key].append(s)
             
         return list(groups.values())
+
+        # カウント版
+        """
+        groups = defaultdict(list)
+
+        for s in strs:
+            # 26文字分の出現頻度配列を用意（a-z）
+            count = [0] * 26
+            for c in s:
+                # テクニック。ord('a') - ord('a') = 0
+                count[ord(c) - ord('a')] += 1
+
+            # リストは辞書のキーにできないため、tupleに変換してキーにする
+            # 要素数が26個のタプル。不変だからkeyとして使える。
+            groups[tuple(count)].append(s)
+
+        return list(groups.values())
+        """
