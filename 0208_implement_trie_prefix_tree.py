@@ -35,16 +35,17 @@ memo:
   オブジェクト指向設計の明確さ・拡張性の観点からクラス分離型が面接では推奨される。
 """
 
+# 追加のクラスの定義
 class TrieNode:
     def __init__(self):
-        self.children = {}
-        self.is_end = False
+        self.children = {} # 属性の作成。空の辞書。次の1文字をkeyとし、遷移先となる次のTrieNodeインスタンスを値とする。
+        self.is_end = False # 属性の作成。ノードが単語の終わり（末尾）であることを表すフラグ。
 
 
 class Trie:
 
     def __init__(self):
-        self.root = TrieNode()
+        self.root = TrieNode() # 属性の作成。TrieNodeクラスのインスタンス化。生成された実体（オブジェクト）の代入。
 
     def insert(self, word: str) -> None:
         curr = self.root
