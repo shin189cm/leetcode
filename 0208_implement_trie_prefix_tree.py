@@ -58,12 +58,12 @@ class Trie:
         curr.is_end = True # 全文字終了時点で、最終的な到達点のNodeのis_end属性の値をTrueにする
 
     def search(self, word: str) -> bool:
-        curr = self.root
-        for char in word:
-            if char not in curr.children:
-                return False
-            curr = curr.children[char]
-        return curr.is_end
+        curr = self.root # 現在地currのポインタの初期化。
+        for char in word: # 1文字ずつ走査
+            if char not in curr.children: # もし、走査中の1文字が、子Nodeに含まれていない場合
+                return False # Falseを返す
+            curr = curr.children[char] # 現在地currを、走査中の1文字に対応する子Nodeへ進める
+        return curr.is_end # 全文字終了後、wordの最終文字の属性is_endの値を返す。ちょうど単語の終わりか判定する。
 
     def startsWith(self, prefix: str) -> bool:
         curr = self.root
