@@ -66,13 +66,12 @@ class Trie:
         return curr.is_end # 全文字終了後、wordの最終文字の属性is_endの値を返す。ちょうど単語の終わりか判定する。
 
     def startsWith(self, prefix: str) -> bool:
-        curr = self.root
-        for char in prefix:
-            if char not in curr.children:
-                return False
-            curr = curr.children[char]
-        return True
-
+        curr = self.root # 現在地currのポインタの初期化
+        for char in prefix: # 1文字ずつ走査
+            if char not in curr.children: # 走査中の1文字が子Nodeに含まれていない場合
+                return False # その接頭辞を持つ単語は存在しないためFalse
+            curr = curr.children[char] # 現在地currを次の文字の子Nodeへ進める
+        return True # 全文字辿り着けた時点で、その接頭辞を持つ単語が存在することが確定するためTrue
 
 # Your Trie object will be instantiated and called as such:
 # obj = Trie()
