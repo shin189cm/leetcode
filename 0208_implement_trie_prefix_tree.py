@@ -48,12 +48,14 @@ class Trie:
         self.root = TrieNode() # 属性の作成。TrieNodeクラスのインスタンス化。生成された実体（オブジェクト）の代入。
 
     def insert(self, word: str) -> None:
-        curr = self.root
-        for char in word:
-            if char not in curr.children:
-                curr.children[char] = TrieNode()
-            curr = curr.children[char]
-        curr.is_end = True
+        curr = self.root # __init__で生成されたself.rootインスタンスへの参照を、変数に代入。
+        # 探索の現在地を表すポインタの初期化。木構造の根（rootノードのインスタンス）への参照を代入。
+        
+        for char in word: # 1文字ずつ走査
+            if char not in curr.children: # もし現在のNodeの子にその文字が無ければ
+                curr.children[char] = TrieNode() # インスタンス生成して辞書登録する
+            curr = curr.children[char] # 現在地currを、その文字に対応する子Nodeへ進める
+        curr.is_end = True # 全文字終了時点で、最終的な到達点のNodeのis_end属性の値をTrueにする
 
     def search(self, word: str) -> bool:
         curr = self.root
