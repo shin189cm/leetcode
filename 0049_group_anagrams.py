@@ -50,6 +50,9 @@ class Solution:
 
         # カウント版
         """
+        # 理論上は、K < KlogKのため、こちらのほうが高速。
+        # しかし、for文を回す必要がある、かつタプル型への変換しハッシュ化するコストが発生することから、実情は遅くなることが多い。
+        
         groups = defaultdict(list)
 
         for s in strs:
