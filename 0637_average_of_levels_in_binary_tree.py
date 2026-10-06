@@ -38,35 +38,40 @@ from collections import deque
 from typing import Optional
 
 
-# Definition for a binary tree node.
-class TreeNode:
-    def __init__(self, val=0, left=None, right=None):
-        self.val = val
-        self.left = left
-        self.right = right
-
-
 class Solution:
     def averageOfLevels(self, root: Optional[TreeNode]) -> list[float]:
+        # ガード節（エッジケース対応）
         if not root:
             return []
 
+        # resultを、list型、要素の型はfloatとして、空の配列を代入する
         result: list[float] = []
+
+        # queueを、deque型、要素の型はTreeNodeとして、deque([root])を代入する
         queue: deque[TreeNode] = deque([root])
 
+        # queueの中身があるうちは処理する
         while queue:
-            level_size = len(queue)
-            level_sum = 0
+            # level_sizeには、queueの長さを代入する
+            level_size: int = len(queue)
+            # level_sumは、該当する階層の値の合計値を格納する場所
+            level_sum: float = 0.0
 
+            # 固定したlevel_size（その階層の要素数）だけループする
             for _ in range(level_size):
-                node = queue.popleft()
+                # nodeには、queueの先頭を取り出して代入する
+                node: TreeNode = queue.popleft()
+                # nodeの値を、合計値に加算する
                 level_sum += node.val
 
+                # もし該当ノードにleftがあればqueueに追加
                 if node.left:
                     queue.append(node.left)
+                # rightがあればqueueに追加
                 if node.right:
                     queue.append(node.right)
 
+            # resultに、平均値をappendする
             result.append(level_sum / level_size)
 
         return result
