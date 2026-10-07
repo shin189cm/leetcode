@@ -56,4 +56,21 @@ join_data = pd.merge(
 
 # 005
 join_data["price"] = join_data["quantity"] * join_data["item_price"]
-print(join_data[["quantity", "item_price", "price"]].head(5))
+# print(join_data[["quantity", "item_price", "price"]].head(5))
+
+# 006 検算
+# print(f'sum of join_data is\t{join_data["price"].sum()}')
+# print(f'sum of transaction is\t{transaction["price"].sum()}')
+# print(f'join_data : transaction is {join_data["price"].sum() == transaction["price"].sum()}')
+
+# 007 各統計量の確認。null
+# print(join_data.isnull().sum())
+# print(join_data.describe())
+# 数値以外の統計量のチェック
+# print(f'min of date is {join_data["payment_date"].min()}\nmax of date is {join_data["payment_date"].max()}')
+
+# 008
+# print(join_data.dtypes)
+join_data["payment_date"] = pd.to_datetime(join_data["payment_date"])
+join_data["payment_month"] = join_data["payment_date"].dt.strftime("%Y%m")
+print(join_data[["payment_date", "payment_month"]].head())
