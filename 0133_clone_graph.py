@@ -81,8 +81,8 @@ class Solution:
             return None
 
         # 元ノード -> 複製ノード のマッピング
-        cloned = {node: Node(node.val)}
-        queue = deque([node])
+        cloned = {node: Node(node.val)}  # keyが元のNodeオブジェクト、valueが複製した新しいNodeオブジェクト
+        queue = deque([node]) # 複製ではなく、このdequeの中身は元ノード。オリジナルの隣接関係を追いかけるため。
 
         while queue:
             curr = queue.popleft()
@@ -96,5 +96,5 @@ class Solution:
                 # 複製ノード同士をエッジで繋ぐ
                 cloned[curr].neighbors.append(cloned[neighbor])
 
-        return cloned[node]
+        return cloned[node] # 複製されたnode型のオブジェクトを返す
 """
