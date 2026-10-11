@@ -1,5 +1,7 @@
 # 001
 import pandas as pd
+from rich import print
+import matplotlib.pyplot as plt
 
 customer_master = pd.read_csv('customer_master.csv', encoding='utf-8')
 # print(customer_master[0:5])
@@ -73,4 +75,24 @@ join_data["price"] = join_data["quantity"] * join_data["item_price"]
 # print(join_data.dtypes)
 join_data["payment_date"] = pd.to_datetime(join_data["payment_date"])
 join_data["payment_month"] = join_data["payment_date"].dt.strftime("%Y%m")
-print(join_data[["payment_date", "payment_month"]].head())
+# print(join_data[["payment_date", "payment_month"]].head())
+# print(join_data.groupby("payment_month").sum()["price"])
+
+# 009
+# print(join_data.groupby(["payment_month", "item_name"]).sum()[["price", "quantity"]])
+# print(pd.pivot_table(join_data, index='item_name', columns='payment_month', values=['price', 'quantity'], aggfunc='sum'))
+
+# 010
+graph_data = pd.pivot_table(join_data, index='payment_month', columns='item_name', values='price', aggfunc='sum')
+print(graph_data.head())
+# plt.plot(list(graph_data.index), graph_data["PC-A"], label='PC-A')
+# plt.plot(list(graph_data.index), graph_data["PC-B"], label='PC-B')
+# plt.plot(list(graph_data.index), graph_data["PC-C"], label='PC-C')
+# plt.plot(list(graph_data.index), graph_data["PC-D"], label='PC-D')
+# plt.plot(list(graph_data.index), graph_data["PC-E"], label='PC-E')
+# plt.legend()
+# plt.show()
+
+cols = ["PC-A", "PC-B", "PC-C", "PC-D", "PC-E"]
+graph_data[cols].plot()
+plt.show()
