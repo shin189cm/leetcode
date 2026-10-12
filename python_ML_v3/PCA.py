@@ -87,7 +87,7 @@ assert np.allclose(
     sklearn_pca.explained_variance_ratio_,
     atol=1e-5
 ), "寄与率が一致しません"
-print(f"チェック　寄与率の検証：ok {scratch_pca.explained_variance_ratio_}")
+print(f"チェック　寄与率の検証：ok")
 
 assert np.allclose(
     np.abs(X_train_scratch),
@@ -107,6 +107,14 @@ identity_check = np.dot(scratch_pca.components_.T, scratch_pca.components_)
 assert np.allclose(
     identity_check, np.eye(n_components), atol=1e-5
 ), "固有ベクトルが直交していません"
-print(f'固有ベクトルの正規直交性検証：ok\n{identity_check}')
+print(f'固有ベクトルの正規直交性検証：ok')
 
 print('\n全テスト通過：ScratchPCAの実装は数学的・使用的に正常です')
+# 補足
+"""
+- np.linalg.eigではなく、np.linalg.eighを使用するのは、実対象行列を使うから。数値的な安定性と速度
+- 分散共分散行列はd（特徴量の個数）が大きいとメモリが不足するかつ、速度が遅い
+    - 分散共分散行列の計算O(nd^2)：長さnのベクトルの内積を、d^2要素ぶん
+    - 固有値固有ベクトルの計算O(d^3)：三重対角行列へ直交変換するのに、Σ(d-k)^2でO(d^3)
+- n>>dのときに限ってのみ、共分散行列を作成しても機能する
+"""
