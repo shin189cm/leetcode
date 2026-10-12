@@ -1,8 +1,12 @@
 import pandas as pd
 import numpy as np
-print("hello")
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+# print("hello")
 df_wine = pd.read_csv('http://archive.ics.uci.edu/ml/machine-learning-databases/wine\wine.data', header=None)
-print(df_wine.head())
+# print(df_wine.head())
 
 # データの標準化
 # 共分散行列の計算
@@ -50,3 +54,59 @@ class ScratchPCA:
 
     def fit_transform(self, X: np.ndarray) -> np.ndarray:
         return self.fit(X).transform(X)
+
+# xyへの代入
+X = df_wine.iloc[:,1:].values
+Y = df_wine.iloc[:,0].values
+
+# 分割
+X_train, X_test, Y_train, Y_test = train_test_split(
+    X, Y, test_size=0.3, random_state=42)
+
+# 前処理
+sc =StandardScaler()
+X_train_std = sc.fit_transform(X_train)
+X_test_std = sc.fit_transform(X_test)
+
+# モデルの実行
+n_components = 5
+
+# scratchPCA
+scratch_pca = ScratchPCA(n_components=n_components)
+X_train_scratch = scratch_pca.fit_transform(X_train_std)
+X_test_scratch = scratch_pca.fit_transform(X_test_std)
+
+# sklearnPCA
+sklearn_pca = PCA(n_components=n_components)
+X_train_sklearn = sklearn_pca.fit_transform(X_train_std)
+X_test_sklearn = sklearn_pca.fit_transform(X_test_std)
+
+# 検証
+assert np.allclose(
+    scratch_pca.explained_variance_ratio_,
+    sklearn_pca.explained_variance_ratio_,
+    atol=1e-5
+), "寄与率が一致しません"
+print(f"チェック　寄与率の検証：ok {scratch_pca.explained_variance_ratio_}")
+
+assert np.allclose(
+    np.abs(X_train_scratch),
+    np.abs(X_train_sklearn),
+    atol=1e-5
+), "Trainデータの変換結果が一致しません"
+print(f'訓練データの射影検証：ok.')
+
+assert np.allclose(
+    np.abs(X_test_scratch),
+    np.abs(X_test_sklearn),
+    atol=1e-5
+), "Testデータの変換結果が一致しません"
+print(f'訓練データの射影検証：ok.')
+
+identity_check = np.dot(scratch_pca.components_.T, scratch_pca.components_)
+assert np.allclose(
+    identity_check, np.eye(n_components), atol=1e-5
+), "固有ベクトルが直交していません"
+print(f'固有ベクトルの正規直交性検証：ok\n{identity_check}')
+
+print('\n全テスト通過：ScratchPCAの実装は数学的・使用的に正常です')
