@@ -104,4 +104,39 @@ from rich import print
 import matplotlib.pyplot as plt
 
 customer_master = pd.read_csv('customer_master.csv')
-print(customer_master.head())
+# print(customer_master.head())
+
+# 002
+item_master = pd.read_csv('item_master.csv')
+transaction_1 = pd.read_csv('transaction_1.csv')
+transaction_2 = pd.read_csv('transaction_2.csv')
+transaction_detail_1 = pd.read_csv('transaction_detail_1.csv')
+transaction_detail_2 = pd.read_csv('transaction_detail_2.csv')
+
+transaction = pd.concat([transaction_1, transaction_2], ignore_index=True) # ignore_indexで、indexを振りなおしている
+# print(transaction.head())
+
+transaction_detail = pd.concat([transaction_detail_1, transaction_detail_2], ignore_index=True)
+# print(transaction_detail.head())
+
+# 003
+join_data = pd.merge(transaction_detail, transaction[["transaction_id", "payment_date", "customer_id"]], on="transaction_id", how="left")
+# print(join_data.head())
+# print(len(transaction_detail))
+# print(len(transaction))
+# print(len(join_data))
+
+# 004
+join_data = pd.merge(join_data, customer_master, on="customer_id", how="left")
+join_data = pd.merge(join_data, item_master, on="item_id", how="left")
+# print(join_data.head())
+
+# 005
+join_data["price"] = join_data["quantity"] * join_data["item_price"]
+# print(join_data[["quantity", "item_price", "price"]].head())
+
+# 006
+print(join_data["price"].sum())
+print(transaction["price"].sum())
+
+# 007
