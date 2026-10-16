@@ -75,3 +75,38 @@ class Solution:
                     dfs(r, c)
                     
         return island_count
+"""
+        # BFSの場合
+        if not grid or not grid[0]:
+              return 0
+        
+            rows, cols = len(grid), len(grid[0])
+            island_count = 0
+        
+            # 4方向の移動ベクトル（上、下、左、右）
+            directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        
+            for r in range(rows):
+              for c in range(cols):
+                # 未訪問の陸地を発見したタイミングで新しい島としてカウント
+                if grid[r][c] == "1":
+                  island_count += 1
+                  # キューに最初に追加する時点で訪問済みに書き換える
+                  grid[r][c] = "0"
+                  queue = deque([(r, c)])
+        
+                  # BFS で接続する陸地をすべて探索
+                  while queue:
+                    curr_r, curr_c = queue.popleft()
+        
+                    for dr, dc in directions:
+                      nr, nc = curr_r + dr, curr_c + dc
+        
+                      # 境界内かつ未訪問の陸地であるかを判定
+                      if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == "1":
+                        # キューに追加する直前に訪問済みにする（重複エンキュー防止）
+                        grid[nr][nc] = "0"
+                        queue.append((nr, nc))
+        
+            return island_count
+"""
