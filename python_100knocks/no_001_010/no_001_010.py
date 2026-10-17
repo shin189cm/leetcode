@@ -136,7 +136,23 @@ join_data["price"] = join_data["quantity"] * join_data["item_price"]
 # print(join_data[["quantity", "item_price", "price"]].head())
 
 # 006
-print(join_data["price"].sum())
-print(transaction["price"].sum())
+# print(join_data["price"].sum())
+# print(transaction["price"].sum())
 
 # 007
+# print(join_data.isnull().sum())
+# print(join_data.describe())
+# print(join_data["payment_date"].min()) # 数値データ以外をチェックする
+# print(join_data["payment_date"].max())
+
+# 008
+# print(join_data.dtypes)
+join_data["payment_date"] = pd.to_datetime(join_data["payment_date"])
+join_data["payment_month"] = join_data["payment_date"].dt.to_period("M")
+# join_data["payment_month"] = join_data["payment_date"].dt.strftime("%Y%m")
+# print(join_data[["payment_date","payment_month"]].head())
+
+# print(join_data.groupby("payment_month").sum()["price"])
+
+# 009
+print(join_data.groupby(["payment_month","item_name"]).sum()[["price","quantity"]])
