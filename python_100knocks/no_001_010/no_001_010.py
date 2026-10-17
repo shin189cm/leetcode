@@ -155,4 +155,12 @@ join_data["payment_month"] = join_data["payment_date"].dt.to_period("M")
 # print(join_data.groupby("payment_month").sum()["price"])
 
 # 009
-print(join_data.groupby(["payment_month","item_name"]).sum()[["price","quantity"]])
+# print(join_data.groupby(["payment_month","item_name"]).sum()[["price","quantity"]])
+# print(pd.pivot_table(join_data, index='item_name', columns='payment_month', values=['price', 'quantity'], aggfunc='sum'))
+
+# 010
+graph_data = pd.pivot_table(join_data, index='payment_month', columns='item_name', values='price', aggfunc='sum')
+# print(graph_data.head())
+cols = ["PC-A", "PC-B", "PC-C", "PC-D", "PC-E"]
+graph_data[cols].plot()
+plt.show()
