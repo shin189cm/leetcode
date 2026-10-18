@@ -53,3 +53,26 @@ class Solution:
         merged[-1][1] = max(merged[-1][1], interval[1])
 
     return merged
+"""
+# 2-pointerで解く場合
+class Solution:
+    def merge(self, intervals: list[list[int]]) -> list[list[int]]:
+        if not intervals:
+            return []
+
+        # 1. 開始時刻でソート
+        intervals.sort(key=lambda x: x[0])
+
+        slow = 0  # 確定・拡張中区間のインデックス
+
+        # fast は未検査区間を走査するインデックス
+        for fast in range(1, len(intervals)):
+            # 重複判定: 現在の区間の終端 >= 次の区間の開始
+            if intervals[slow][1] >= intervals[fast][0]:
+                intervals[slow][1] = max(intervals[slow][1], intervals[fast][1])
+            else:
+                slow += 1
+                intervals[slow] = intervals[fast]
+
+        return intervals[: slow + 1]
+"""
