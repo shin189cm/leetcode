@@ -124,4 +124,24 @@ res = uriage_data.pivot_table(
     aggfunc="sum",
     fill_value=0   
 )
-print(res)
+# print(res)
+
+# 014
+# print(len(pd.unique(uriage_data["item_name"])))
+
+uriage_data["item_name"] = uriage_data["item_name"].str.upper() # let name Capital
+uriage_data["item_name"] = uriage_data["item_name"].str.replace("　","")
+uriage_data["item_name"] = uriage_data["item_name"].str.replace(" ","")
+# print(uriage_data.sort_values(by=["item_name"], ascending=True))
+# print(pd.unique(uriage_data["item_name"]))
+# print(len(pd.unique(uriage_data["item_name"])))
+
+# 015
+# print(uriage_data.isnull().sum(axis="index"))
+# print(uriage_data.isnull().any())
+uriage_data["item_price"] = uriage_data.groupby("item_name")["item_price"].transform(
+    lambda x: x.fillna(x.dropna().max() if not x.dropna().empty else None)
+)
+# nanを除外した上で、emptyではないつまりもし値が1つでも存在すれば、nan除外の列でmaxで上書きする
+# nanを除外した上で、残った値が0個の場合つまりemptyだった場合は、Noneで上書きする、しかない。
+print(uriage_data.head())
