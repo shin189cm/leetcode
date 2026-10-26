@@ -92,6 +92,44 @@ for i in range(6, len(year_months)):
         tmp = pd.merge(tmp, tmp_before, on="customer_id", how="left")
     predict_data = pd.concat([predict_data, tmp], ignore_index=True)
 # print(predict_data.head())
-
+# 欠損値を削除する
+predict_data = predict_data.dropna()
+predict_data = predict_data.reset_index(drop=True)
 
 # 37
+# 特徴量を付与する
+predict_data = pd.merge(predict_data, customer[["customer_id", "start_date"]], on="customer_id", how="left")
+# print(predict_data.head())
+
+# print(predict_data["年月"].dtype)
+predict_data["now_date"] = predict_data["年月"].dt.to_timestamp()
+# print(predict_data.head())
+predict_data["start_date"] = pd.to_datetime(predict_data["start_date"])
+from dateutil.relativedelta import relativedelta
+predict_data["period"] = None
+# for i in range(len(predict_data)):
+#     delta = relativedelta(predict_data.loc[i, "now_date"], predict_data.loc[i, "start_date"])
+#     predict_data.loc[i, "period"] = delta.years * 12 + delta.months
+predict_data["period"] = (
+    (predict_data["now_date"].dt.year - predict_data["start_date"].dt.year) * 12
+    + (predict_data["now_date"].dt.month - predict_data["start_date"].dt.month)
+)
+# print(predict_data.head())
+print(predict_data.isna().sum())
+
+
+# 38
+# ついに予測モデルを作成する。来月の利用回数を知りたい。
+predict_data = predict_data.loc[predict_data["start_date"] >= pd.to_datetime("20180401")]
+from sklearn import linear_model
+import sklearn.model_selection
+model = linear_model.LinearRegression()
+X = predict_data[["count_0", "count_1", "count_2", "count_3", "count_4", "count_5", "period"]]
+y = predict_data["count_pred"]
+X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, random_state=0)
+model.fit(X_train, y_train)
+print(model.score(X_train, y_train))
+print(model.score(X_test, y_test))
+
+
+# 39
