@@ -148,3 +148,5 @@ x1 = [3,4,4,6,8,7,8]
 x2 = [2,2,3,3,4,6,8]
 x_pred = pd.DataFrame(data=[x1, x2], columns=["count_0", "count_1", "count_2", "count_3", "count_4", "count_5", "period"])
 print(model.predict(x_pred))
+
+uselog_months.to_csv("use_log_months.csv", index=False)
