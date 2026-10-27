@@ -115,7 +115,7 @@ predict_data["period"] = (
     + (predict_data["now_date"].dt.month - predict_data["start_date"].dt.month)
 )
 # print(predict_data.head())
-print(predict_data.isna().sum())
+# print(predict_data.isna().sum())
 
 
 # 38
@@ -126,10 +126,25 @@ import sklearn.model_selection
 model = linear_model.LinearRegression()
 X = predict_data[["count_0", "count_1", "count_2", "count_3", "count_4", "count_5", "period"]]
 y = predict_data["count_pred"]
+# 指定なしのため、training vs. validation は 75% vs. 25% になる
 X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, random_state=0)
 model.fit(X_train, y_train)
-print(model.score(X_train, y_train))
-print(model.score(X_test, y_test))
+# print(model.score(X_train, y_train))
+# print(model.score(X_test, y_test))
 
 
 # 39
+coef = pd.DataFrame(
+    {"feature_names":X.columns,
+     "coefficient":model.coef_}
+)
+# print(coef)
+# 直近ジムに通っている回数が、最も効いているんだな。
+
+
+# 40
+# 予測用のダミーデータ
+x1 = [3,4,4,6,8,7,8]
+x2 = [2,2,3,3,4,6,8]
+x_pred = pd.DataFrame(data=[x1, x2], columns=["count_0", "count_1", "count_2", "count_3", "count_4", "count_5", "period"])
+print(model.predict(x_pred))
