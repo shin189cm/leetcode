@@ -1,6 +1,7 @@
 import pandas as pd
 from rich import print
 import matplotlib.pyplot as plt
+import japanize_matplotlib
 # 東アジアの幅（全角文字）を考慮して表示位置を揃える
 pd.set_option("display.unicode.east_asian_width", True)
 
@@ -183,8 +184,50 @@ X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y
 
 model = DecisionTreeClassifier(max_depth=5, random_state=0)
 model.fit(X_train, y_train)
-print(model.score(X_test, y_test))
-print(model.score(X_train, y_train))
+# print(model.score(X_test, y_test))
+# print(model.score(X_train, y_train))
 
 
 # 49
+importance = pd.DataFrame({"feature":X.columns, "importance":model.feature_importances_})
+# print(importance)
+
+from sklearn import tree
+plt.figure(figsize=(20, 8))
+tree.plot_tree(model, feature_names=X.columns, fontsize=8)
+# plt.savefig("tree20261101.png")
+# plt.show()
+
+
+# 50
+# 退会予測してみる。
+count_1 = 4
+routine_flg = 1
+period = 12
+campaign_name = "入会費無料"
+class_name = "オールタイム"
+gender = "M"
+
+if campaign_name == "入会費半額":
+    campaign_name_list = [1,0]
+elif campaign_name == "入会費無料":
+    campaign_name_list = [0,1]
+elif campaign_name == "通常":
+    campaign_name_list = [0,0]
+
+if class_name == "オールタイム":
+    class_name_list = [1,0]
+elif class_name == "デイタイム":
+    class_name_list = [0,1]
+elif class_name == "ナイト":
+    class_name_list = [0,0]
+
+if gender == "F":
+    gender_list = [1]
+elif gender == "M":
+    gender_list = [0]
+input_data = [count_1, routine_flg, period] + campaign_name_list + class_name_list + gender_list
+input_data = pd.DataFrame([input_data], columns=X.columns)
+
+print(model.predict(input_data))
+print(f"予測確率: {model.predict_proba(input_data)}")
