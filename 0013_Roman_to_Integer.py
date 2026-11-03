@@ -32,3 +32,27 @@ class Solution:
                 total += current_val
 
         return total
+
+# 逆走査
+"""
+class Solution:
+    ROMAN_MAP = {
+        "I": 1, "V": 5, "X": 10, "L": 50,
+        "C": 100, "D": 500, "M": 1000
+    }
+
+    def romanToInt(self, s: str) -> int:
+        res = 0
+        prev_val = 0
+        
+        # 右から左へ走査
+        for char in reversed(s):
+            val = self.ROMAN_MAP[char]
+            if val < prev_val:
+                res -= val
+            else:
+                res += val
+            prev_val = val
+            
+        return res
+"""
