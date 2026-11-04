@@ -5,14 +5,14 @@ Difficulty: Easy
 Category: String / Two Pointers
 
 Complexity:
-- Time: O(S) - S は全文字列の全文字数の合計。最悪の場合すべての文字を走査
-- Space: O(1) - 共通接頭辞を切り出すポインタ/インデックスのみで追加メモリ不要
+- Time: O(S) - S は全文字列の全文字数の合計。最悪の場合すべての文字を走査
+- Space: O(1) - 共通接頭辞を切り出すポインタ/インデックスのみで追加メモリ不要
 
 Approach:
-1. 入力リストが空の場合は空文字を返す
+1. 入力リストが空の場合は空文字を返す
 2. 基準として最初の文字列 strs[0] の各文字を先頭から順に走査する（縦走査）
-3. 他の文字列で長さが足りなくなるか、文字が不一致になった時点でそこまでの文字列を返す
-4. ループを完走した場合は strs[0] 全体が共通接頭辞となる
+3. 他の文字列で長さが足りなくなるか、文字が不一致になった時点でそこまでの文字列を返す
+4. ループを完走した場合は strs[0] 全体が共通接頭辞となる
 """
 from typing import List
 
@@ -28,3 +28,16 @@ class Solution:
                     return first_word[:i]
                     
         return first_word
+
+# zipを使う場合
+"""
+class Solution:
+    def longestCommonPrefix(self, strs: List[str]) -> str:
+        res = []
+        for chars in zip(*strs):
+            # もし集合にして、2文字以上が返された場合は不一致ということ
+            if len(set(chars)) > 1:
+                break
+            res.append(chars[0])
+        return "".join(res) # 空文字を区切り文字として、リストの要素をくっつける
+"""

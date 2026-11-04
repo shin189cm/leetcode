@@ -1,30 +1,45 @@
-# 0009 Valid Palindrome (※LeetCode 9 は Palindrome Number)
+"""Problem: 9_palindrome_number.py
+
+URL: https://leetcode.com/problems/palindrome-number/
+Difficulty: Easy
+Category: Math
+
+Complexity:
+- Time: O(log10(N))
+    - 数値の桁数を d とすると、毎ステップ 10 で割るため反転処理のループ回数は高々 d / 2 回。
+    - 全体の時間計算量は入力値の桁数に比例し、O(log10(N))。
+- Space: O(1)
+    - 反転した数値を保持する整数変数 right のみを使用するため、追加のメモリ消費は定数オーダ。
+
+Approach:
+1. 特殊ケースの除外:
+    - 負の数は先頭に '-' が付くため回文数になり得ない（例: -121 -> 121- で不一致）。
+    - 0 以外の末尾が 0 の数値（10, 20, 100 など）は、先頭が 0 になることはないため回文数になり得ない。
+    - ただし 0 単体は回文数であるため除外対象から外す。
+2. 後半の反転と早期停止:
+    - 文字列への変換を行わず、数学的に右側の桁を取り出して新しい数値を構築する。
+    - 数値全体を反転させると 32-bit 整数のオーバーフロー懸念（言語仕様依存）があるため、数値の半分だけ反転させる。
+    - x > right の間ループを回すことで、元の数値の前半と反転させた後半の桁数が等しい（または後半が1桁多い）状態まで処理を進める。
+3. 一致判定:
+    - 偶数桁の場合: x == right で判定。
+    - 奇数桁の場合: 中央の桁は right の末尾（1の位）に含まれるため、right // 10 を行い中央値を除去して x == right // 10 で判定。
+
+memo:
+- 文字列変換 (str(x) == str(x)[::-1]) を用いると実装は容易だが、O(log10(N)) の追加空間を消費する。
+- Follow-up の「整数を文字列に変換せずに解く」制約下では、桁の半分のみを反転させる本手法が空間計算量 O(1) かつオーバーフロー回避の観点から最適。
+"""
+
 
 class Solution:
     def isPalindrome(self, x: int) -> bool:
-        left, right = x, 0
-
+        # 負数、および 0 以外の末尾が 0 の数値は回文数になり得ない
         if x < 0 or (x % 10 == 0 and x != 0):
             return False
 
-        while left > right:
-            right = right * 10 + left % 10
-            left = left // 10
+        right = 0
+        while x > right:
+            right = right * 10 + x % 10
+            x //= 10
 
-        return left == right or left == right // 10
-
-# Time: O(N) 桁数/2
-# Space: O(1) 保存用のみ
-
-"""
-フィードバック
- タイトルの混同: LeetCode 0009 の問題名は Palindrome Number です（「Valid Palindrome」は文字列を扱う LeetCode 125）。
- 計算量の表記揺れ:
- 入力値 x に対して、桁数は \log_{10}(x) です。
- 「桁数を N とする」と定義するなら O(N) で問題ありませんが、アルゴリズムの文脈で単に O(N) と書くと「数値の大きさ x に対して線形」と誤解されやすいため、O(\log_{10} x) または「N 桁として O(N)」と明記するのが安全です。
- ガード節の位置:
- ⁠left, right = x, 0⁠ の初期化を ⁠if x < 0 or ...⁠ の後に行うと、即時リターン時に無駄な変数バインドが発生しません。
- アルゴリズム自体は最適:
- 文字列変換を避けて数値を半分だけ反転させるアプローチ（オーバーフロー回避・空間 O(1)・偶数奇数桁の両対応）は LeetCode 9 の模範解答通り正確に実装されています。
-
-"""
+        # 偶数桁なら x == right、奇数桁なら中央値を落とした x == right // 10
+        return x == right or x == right // 10
