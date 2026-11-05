@@ -1,22 +1,29 @@
-class Solution:
-    def moveZeroes(self, nums: list[int]) -> None:
-        """
-        複製しないこと。
-        0以外の数字の、相対的な順序を保つこと。
-        0を全部右寄せにすること。
-        時間計算量：Ｏ（Ｎ）
-        空間計算量：Ｏ（１）、なぜなら2pointerと考えたから。
-        """
-        # ベースケース不要。なぜならlen(nums)は1以上だから。
-        left = 0
-        
-        # 最後に0だった場所をleftに記憶しておく。
-        # 0以外を走査したとき、nums[left] = その値とする。
-        # leftは、left += 1で更新する。
+"""
+Problem: 283. Move Zeroes
+URL: https://leetcode.com/problems/move-zeroes/
+Difficulty: Easy
+Category: Two Pointers (Fast & Slow Pointers)
 
-        for idx, num in enumerate(nums):
-            if num != 0:
-                # nums[left] = num
-                nums[idx], nums[left] = 0, num
-                left += 1
-        return nums
+Pattern:
+- Fast & Slow Pointers（速いポインタ i が探索し、遅いポインタ idx が配置位置を管理）
+
+Complexity:
+- Time: O(N) - 配列を1周走査
+- Space: O(1) - 追加メモリなし（in-place）
+
+Notes / Edge Cases:
+- 単純代入（nums[idx]=nums[i], nums[i]=0）だと、i == idx（先頭が非ゼロ）のケースで値が消失する自己破壊バグが発生する。
+- 対策として要素のスワップ（入れ替え）を用いる。
+"""
+
+
+class Solution:
+
+  def moveZeroes(self, nums: list[int]) -> None:
+    idx = 0  # 次に「0以外の値」を配置するインデックス（遅いポインタ）
+
+    for i in range(len(nums)):  # 探索ポインタ（速いポインタ）
+      if nums[i] != 0:
+        # スワップにより、i == idx の場合でも値の消失を防ぐ
+        nums[idx], nums[i] = nums[i], nums[idx]
+        idx += 1
