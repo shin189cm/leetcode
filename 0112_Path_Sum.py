@@ -5,29 +5,34 @@
 #         self.left = left
 #         self.right = right
 class Solution:
-    def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -> bool:
-        """Problem: 0112_path_sum.py
-
-        URL: https://leetcode.com/problems/path-sum/
-        Difficulty: Easy
-        Category: Binary Tree, DFS, Recursion
-
-        Complexity:
-        - Time: O(N) - 全てのノードを最大1回走査するため（N: ノード数）
-        - Space: O(H) - 再帰呼び出しのコールスタックの深さ。最悪ケース（直線状の木）で O(N)、平衡木で O(log N)（H: 木の高さ）
-
-        Approach:
-        1. 空ノード (root is None) の場合はパスが存在しないため False を返却する。
-        2. 葉ノード（左右の子ノードが共に None）に到達した際、ノードの値が残りの targetSum と一致するかを判定する。
-        3. 葉以外のノードでは、現在のノード値を targetSum から減算し、左右の部分木に対して再帰的に探索を実行する。
-        4. 左右いずれかのパスで合計が一致すればよいため、論理和 (or) の結果を返却する。
+    def hasPathSum(self, root: TreeNode | None, targetSum: int) -> bool:
         """
+        rootからleafまでの値の合計が、targetSumに一致するかどうか。
+        1つでも和が一致するものがあればokなので、trueだったら即リターンして終了できる。
+
+        dfsで設計したい。
+        走査対象のノードを通過したとき、残りの和remain = targetSum - curr_node
+        のように、値を持つ。
+        """
+        # ベースケース
         if not root:
-            return False
+            return false
 
-        if not root.left and not root.right:
-            return root.val == targetSum
+        def dfs(self, node: TreeNode | None, remainSum: int) -> bool:
+            # まず差分を求める
+            remain = remainSum - node.val        
 
-        remaining = targetSum - root.val
-        return self.hasPathSum(root.left, remaining) or self.hasPathSum(root.right, remaining
-        )
+            # 当該ノードがleafだった場合、判定
+            if not node.left and not node.right:
+                return remain == 0
+            
+            # 次のdfsをセット
+            if node.left:
+                dfs(node.left, remain)
+            if node.right:
+                dfs(node.right, remain)
+
+        dfs(root, targetSum)
+
+        # もしtrueが最後まで返らなかった場合
+        return false
