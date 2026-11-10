@@ -27,7 +27,7 @@ class Solution:
         if not root:
             return []
         
-        res = []
+        res: list[str] = []
 
         def dfs(node: TreeNode, path: str):
             # 葉ノードに到達した時の処理
@@ -43,3 +43,22 @@ class Solution:
 
         dfs(root, "")
         return res
+
+# 状態をリストで持つ、バックトラック型
+"""
+コピー型が向く場面: 状態が文字列や数値のように小さい場合や、まず正しく動くものを書きたい場合（257 や Path Sum I（112）の残り合計を引数で渡すケースなど）
+バックトラック型が向く場面: 状態がリスト・集合・盤面のように大きい場合や、途中の状態を何度も参照・加工する場合（113、46、79 など）
+
+        path: list[str] = []
+
+        def dfs(node: TreeNode) -> None:
+            path.append(str(node.val))
+            if not node.left and not node.right:
+                res.append("->".join(path))
+            else:
+                if node.left:
+                    dfs(node.left)
+                if node.right:
+                    dfs(node.right)
+            path.pop()  # 戻るときに自分を取り除く
+"""
