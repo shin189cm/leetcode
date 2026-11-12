@@ -97,70 +97,141 @@
 
 ###
 
-# 20261016復習
-# 001
+# 20261016復習------------------------------------------------------------------------
+# # 001
+# import pandas as pd
+# from rich import print
+# import matplotlib.pyplot as plt
+
+# customer_master = pd.read_csv('customer_master.csv')
+# # print(customer_master.head())
+
+# # 002
+# item_master = pd.read_csv('item_master.csv')
+# transaction_1 = pd.read_csv('transaction_1.csv')
+# transaction_2 = pd.read_csv('transaction_2.csv')
+# transaction_detail_1 = pd.read_csv('transaction_detail_1.csv')
+# transaction_detail_2 = pd.read_csv('transaction_detail_2.csv')
+
+# transaction = pd.concat([transaction_1, transaction_2], ignore_index=True) # ignore_indexで、indexを振りなおしている
+# # print(transaction.head())
+
+# transaction_detail = pd.concat([transaction_detail_1, transaction_detail_2], ignore_index=True)
+# # print(transaction_detail.head())
+
+# # 003
+# join_data = pd.merge(transaction_detail, transaction[["transaction_id", "payment_date", "customer_id"]], on="transaction_id", how="left")
+# # print(join_data.head())
+# # print(len(transaction_detail))
+# # print(len(transaction))
+# # print(len(join_data))
+
+# # 004
+# join_data = pd.merge(join_data, customer_master, on="customer_id", how="left")
+# join_data = pd.merge(join_data, item_master, on="item_id", how="left")
+# # print(join_data.head())
+
+# # 005
+# join_data["price"] = join_data["quantity"] * join_data["item_price"]
+# # print(join_data[["quantity", "item_price", "price"]].head())
+
+# # 006
+# # print(join_data["price"].sum())
+# # print(transaction["price"].sum())
+
+# # 007
+# # print(join_data.isnull().sum())
+# # print(join_data.describe())
+# # print(join_data["payment_date"].min()) # 数値データ以外をチェックする
+# # print(join_data["payment_date"].max())
+
+# # 008
+# # print(join_data.dtypes)
+# join_data["payment_date"] = pd.to_datetime(join_data["payment_date"])
+# join_data["payment_month"] = join_data["payment_date"].dt.to_period("M")
+# # join_data["payment_month"] = join_data["payment_date"].dt.strftime("%Y%m")
+# # print(join_data[["payment_date","payment_month"]].head())
+
+# # print(join_data.groupby("payment_month").sum()["price"])
+
+# # 009
+# # print(join_data.groupby(["payment_month","item_name"]).sum()[["price","quantity"]])
+# # print(pd.pivot_table(join_data, index='item_name', columns='payment_month', values=['price', 'quantity'], aggfunc='sum'))
+
+# # 010
+# graph_data = pd.pivot_table(join_data, index='payment_month', columns='item_name', values='price', aggfunc='sum')
+# # print(graph_data.head())
+# cols = ["PC-A", "PC-B", "PC-C", "PC-D", "PC-E"]
+# graph_data[cols].plot()
+# plt.show()
+
+
+# 20261112復習------------------------------------------------------------------------
 import pandas as pd
 from rich import print
 import matplotlib.pyplot as plt
+# 日本語（全角文字）の幅を正しく計算する設定
+pd.set_option('display.unicode.east_asian_width', True)
 
 customer_master = pd.read_csv('customer_master.csv')
 # print(customer_master.head())
-
-# 002
 item_master = pd.read_csv('item_master.csv')
 transaction_1 = pd.read_csv('transaction_1.csv')
 transaction_2 = pd.read_csv('transaction_2.csv')
 transaction_detail_1 = pd.read_csv('transaction_detail_1.csv')
 transaction_detail_2 = pd.read_csv('transaction_detail_2.csv')
 
-transaction = pd.concat([transaction_1, transaction_2], ignore_index=True) # ignore_indexで、indexを振りなおしている
+# 02 ユニオン
+transaction = pd.concat([transaction_1, transaction_2], ignore_index=True) # idxの降り直し
 # print(transaction.head())
 
 transaction_detail = pd.concat([transaction_detail_1, transaction_detail_2], ignore_index=True)
 # print(transaction_detail.head())
 
-# 003
-join_data = pd.merge(transaction_detail, transaction[["transaction_id", "payment_date", "customer_id"]], on="transaction_id", how="left")
+# 03 ジョイン
+join_data = pd.merge(transaction_detail, transaction[["transaction_id", "payment_date", "customer_id"]], 
+                     on="transaction_id",
+                     how="left"
+                     )
 # print(join_data.head())
-# print(len(transaction_detail))
-# print(len(transaction))
-# print(len(join_data))
 
-# 004
+# 04 マスターをジョインする
 join_data = pd.merge(join_data, customer_master, on="customer_id", how="left")
 join_data = pd.merge(join_data, item_master, on="item_id", how="left")
 # print(join_data.head())
 
-# 005
-join_data["price"] = join_data["quantity"] * join_data["item_price"]
+# 05 列の掛け算をする
+join_data["price"] = join_data["item_price"] * join_data["quantity"]
 # print(join_data[["quantity", "item_price", "price"]].head())
 
-# 006
+# 06 検算する
 # print(join_data["price"].sum())
 # print(transaction["price"].sum())
 
-# 007
+# 07 各種統計量を把握する
 # print(join_data.isnull().sum())
 # print(join_data.describe())
-# print(join_data["payment_date"].min()) # 数値データ以外をチェックする
+# print(join_data["payment_date"].min())
 # print(join_data["payment_date"].max())
 
-# 008
+# 08 築部rつにデータを集計する
 # print(join_data.dtypes)
 join_data["payment_date"] = pd.to_datetime(join_data["payment_date"])
 join_data["payment_month"] = join_data["payment_date"].dt.to_period("M")
-# join_data["payment_month"] = join_data["payment_date"].dt.strftime("%Y%m")
-# print(join_data[["payment_date","payment_month"]].head())
+# print(join_data[["payment_date", "payment_month"]].head())
+# print(join_data[["price", "payment_month"]].groupby("payment_month").sum().to_string(formatters={"price": "{:,}".format}))
 
-# print(join_data.groupby("payment_month").sum()["price"])
+# 09 商品別もグルーピング
+# print(join_data[["price", "payment_month", "item_name"]].groupby(["payment_month", "item_name"]).sum())
+# print(pd.pivot_table(
+#     join_data, index='item_name', columns="payment_month", 
+#     values=['price', 'quantity'], aggfunc="sum")
+#     )
 
-# 009
-# print(join_data.groupby(["payment_month","item_name"]).sum()[["price","quantity"]])
-# print(pd.pivot_table(join_data, index='item_name', columns='payment_month', values=['price', 'quantity'], aggfunc='sum'))
-
-# 010
-graph_data = pd.pivot_table(join_data, index='payment_month', columns='item_name', values='price', aggfunc='sum')
-# print(graph_data.head())
-cols = ["PC-A", "PC-B", "PC-C", "PC-D", "PC-E"]
-graph_data[cols].plot()
+# 10 推移を可視化
+graph_data = pd.pivot_table(
+    join_data, index="payment_month", columns="item_name", 
+    values='price', aggfunc="sum"
+)
+graph_data.plot()
 plt.show()
