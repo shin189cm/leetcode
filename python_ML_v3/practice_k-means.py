@@ -158,26 +158,45 @@ X_std = (X - X.mean(axis=0)) / X.std(axis=0)
 inertias_raw = elbow(X)
 inertias_std = elbow(X_std)
 
-fig, axes = plt.subplots(1, 2, figsize=(10,4))
-axes[0].plot(range(1,11), inertias_raw, marker='o')
-axes[0].set_title("raw")
+# エルボー法のグラフ2つ横並び
+# fig, axes = plt.subplots(1, 2, figsize=(10,4))
+# axes[0].plot(range(1,11), inertias_raw, marker='o')
+# axes[0].set_title("raw")
 
-axes[1].plot(range(1,11), inertias_std, marker='o')
-axes[1].set_title("std")
+# axes[1].plot(range(1,11), inertias_std, marker='o')
+# axes[1].set_title("std")
 
-for ax in axes:
-    ax.set_xlabel("k"); ax.set_label("inertia")
-plt.tight_layout()
+# for ax in axes:
+#     ax.set_xlabel("k"); ax.set_label("inertia")
+# plt.tight_layout()
 # plt.savefig("step3_elbow.png")
 # plt.show()
 
-print("raw", elbow_second_diff(inertias_raw))
-print("std", elbow_second_diff(inertias_std))
+# エルボー法の差分の差分の最大値の確認
+# print("raw", elbow_second_diff(inertias_raw))
+# print("std", elbow_second_diff(inertias_std))
 
-_, labels, _, _ = kmeans(X, 4)
-table = np.array([np.bincount(labels[y_true == t], minlength = 4) for t in range(4)])
-print(table)
+# 正解データの分布と、k-meansによるラベリングの比較
+_, labels_raw, _, _ = kmeans(X, 4)
+# table = np.array([np.bincount(labels_raw[y_true == t], minlength = 4) for t in range(4)])
+# print(table)
 
-_, labels, _, _ = kmeans(X_std, 4)
-table = np.array([np.bincount(labels[y_true == t], minlength = 4) for t in range(4)])
-print(table)
+_, labels_std, _, _ = kmeans(X_std, 4)
+# table = np.array([np.bincount(labels_std[y_true == t], minlength = 4) for t in range(4)])
+# print(table)
+
+# 散布図を描き、元データの分布の確認をする
+# fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+# axes[0].scatter(X[:, 0], X[:, 1], c=labels_raw, s=10)
+# axes[0].set_title("raw")
+# axes[1].scatter(X[:, 0], X[:, 1], c=labels_std, s=10)
+# axes[1].set_title("standardized")
+# plt.savefig("step3_scatter_plot.png")
+# plt.show()
+
+# 数値で標準化前後の相違点を確かめる
+# print(X.std(axis=0))
+
+# エルボー法の、対数の2階差分の最大値の確認
+print("raw", elbow_second_diff_log(inertias_raw))
+print("std", elbow_second_diff_log(inertias_std))
