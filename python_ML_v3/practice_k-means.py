@@ -116,11 +116,37 @@ X, y_true = make_customers()
 # print(time.perf_counter() - t0, "秒")
 
 inertias = elbow(X)
-print(np.array(inertias).reshape(-1,1))
+# print(np.array(inertias).reshape(-1,1))
 # plt.plot(range(1,11), inertias, marker='o')
 # plt.xlabel("k"); plt.ylabel("inertia"); plt.show()
 
-inertias = np.array(inertias)
-rate = 1 - inertias[1:] / inertias[:-1]   # k→k+1 で何割減ったか
-for k, r in zip(range(1, 10), rate):
-    print(f"{k}→{k+1}: {r:.0%}")
+# inertias = np.array(inertias)
+# rate = 1 - inertias[1:] / inertias[:-1]   # k→k+1 で何割減ったか
+# for k, r in zip(range(1, 10), rate):
+#     print(f"{k}→{k+1}: {r:.0%}")
+
+# print(inertias.reshape(-1,1), np.diff(inertias).reshape(-1,1))
+# max_diff_diff = -np.inf
+# max_k = -1
+# diff_1 = np.diff(inertias)
+# diff_2 = np.diff(diff_1)
+# diff_2[0] = 0
+
+# for k,ine,d1,d2 in zip(range(1,11), inertias, diff_1, diff_2):
+#     print(f"{int(k):2d}→{int(k+1):2d}, {int(ine):10d}, {int(d1):10d}, {int(d2):10d}")
+#     if max_diff_diff < d2:
+#         max_diff_diff = d2
+#         max_k = k
+# print(f"{max_k+1}になるときが、最も減少幅が大きい")
+# def elbow_second_diff(inertias, k_start=1):
+#     """二階差分が最大になる k を返す"""
+#     inertias = np.asarray(inertias)
+#     d2 = np.diff(inertias, n=2)        # n=2 で、diff を2回取ったのと同じ結果になる
+#     return k_start + 1 + np.argmax(d2)  # d2[j] は k = k_start + j + 1 の点の曲がり具合
+
+# print(elbow_second_diff(inertias))
+
+# def elbow_second_diff_log(inertias, k_start=1):
+#     d2 = np.diff(np.log(inertias), n=2)
+#     return k_start + 1 + np.argmax(d2)
+# print(elbow_second_diff_log(inertias))
