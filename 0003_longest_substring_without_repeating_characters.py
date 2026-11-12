@@ -1,59 +1,47 @@
 """
-# メモ
-同じ文字を含まない文字列が、最大でどのくらいの長さになるか、答えるもの
-アルファベット、数字、記号、スペースで構成されるとのこと。ざっくり300くらいか？
-全部の文字用に、ハッシュマップを持っておくのも１つ。
-2pointersで、出入りをチェックしていくのも手の1つ。
-これでいこう。
-文字列の長さは高々1万とのこと。2重ループすると1億になるので、O(N^2)だとTLEになる。
+Problem: 0003_longest_substring_without_repeating_characters.py
+URL: https://leetcode.com/problems/longest-substring-without-repeating-characters/
+Difficulty: Medium
+Category: Hash Table, String, Sliding Window
 
-最大文字列を保管しておく話と、
-現状作っている文字列を伸ばしていく話と、２つある。
-max_word = 最大文字列の文字として保存
-curr_word = 現状作っている文字列
+Complexity:
+- Time: O(N) - 文字列を1回走査し、各文字のハッシュマップ参照・更新はO(1)で行えるため
+- Space: O(min(N, M)) - 文字列長Nまたは文字セットサイズM（ASCIIなら最大128など）のハッシュマップを使用するため
 
-curr_wordが途切れたら、、、？
-先頭の文字と同じ文字に出会ったら、leftとrightをスライドする。
-rightの次の文字が、現在のcurr_wordに入っているかは、set()をみないとわからん。
+Approach:
+1. 各文字の直近の出現インデックスを保持するハッシュマップ (last) と、ウィンドウの左端 (left) を用意する。
+2. 文字列を先頭から right ポインタで走査する。
+3. 現在の文字 c が last に存在し、かつそのインデックスが left 以上であれば、left を「前回の出現位置 + 1」にジャンプさせる。
+4. c の出現位置を更新し、現在のウィンドウ幅 (right - left + 1) で best を更新する。
 
+Pattern (スライディングウィンドウの型):
+    right を1つ進める
+    → 条件を満たさなくなったら、満たすまで left を進める
+    → 答えを更新する
 
-・ロジック
-left, right = 0,0で開始する。
-curr_word = set(s[0])作る。
-max_word = curr_word
-s[right] not in curr_wordである限り、
-∟rightを1ずつ進める。
-∟curr_wordを更新する。
-∟max_wordとの判定をし、curr_wordのほうが長ければ書き換える
-∟
-…とset前提で会話していたが、setだとだめだ。leftポインタの移動が適切に行えない。
+- set 版: while で left を1つずつ進める（位置情報がないため）
+- dict 版: 最後の出現位置がわかるので、if で left を一気にジャンプさせる
+- 注意: dict は left より前の古い位置も残るため、last[c] >= left の条件が必須
+  （例: "abba" で最後の 'a' を見るとき、left が後ろに戻ってしまう）
+- 類題: LC 76, 159, 209, 424
 
-
-仕切り直し。
-left,rightを持つ。
-
-
+Reflection:
+- 方針（2ポインタ＋set）は早く立てられたが、「left をどう動かすか」で詰まった（40分でAC）
 """
 class Solution:
-    def lengthOfLongestSubstring(self, s: str) -> int:
-        # 書いていく
-        if not s:
-            return 0
-        left, right = 0, 0
-        curr_word = s[0]
-        max_word = curr_word
 
-        for i in range(1, len(s)):
-            # curr_word内で一致あるかチェック
-            for j in range(len(curr_word)):
-                # 一致するならば、ポインタをずらす
-                if s[i] == curr_word[j]:
-                    left = i-len(curr_word)+j+1
-                    # curr_word = s[left:i+1]
-                    break
-            curr_word = s[left:i+1]
-            # curr_wordにs[i]が1つも一致していない場合、curr_wordを伸ばす
-            if len(curr_word) > len(max_word):
-                max_word = curr_word
-        
-        return len(max_word)
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        last = {}   # 文字 -> 最後に出現した位置
+        left = 0
+        best = 0
+
+        for right, c in enumerate(s):
+            # ウィンドウ内に重複があれば、left をその次へジャンプ
+            if c in last and last[c] >= left:
+                left = last[c] + 1
+
+            # 出現位置を更新し、最大長を更新（重複の有無にかかわらず毎回実行）
+            last[c] = right
+            best = max(best, right - left + 1)
+
+        return best
