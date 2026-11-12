@@ -1,4 +1,6 @@
 import numpy as np
+import time
+import matplotlib.pyplot as plt
 
 # 初期レベル----------------------------------------------
 # X = np.array([[1, 1], [1, 2], [8, 8], [9, 8], [8, 9]])
@@ -54,19 +56,27 @@ def kmeans(X, k, max_iter=100, seed=0):
     for it in range(max_iter):
         # 各データ点を、最近傍の重心に割り当てる
         labels = []
-        for x in X:
-            dists = []
-            for c in centroids:
-                d = np.sum((x-c) ** 2)
-                dists.append(d)
-            labels.append(np.argmin(dists))
-        labels = np.array(labels)
+        # for x in X:
+        #     dists = []
+        #     for c in centroids:
+        #         d = np.sum((x-c) ** 2)
+        #         dists.append(d)
+        #     labels.append(np.argmin(dists))
+        # labels = np.array(labels)
+        
+        diff = X[:, None, :] - centroids[None, :, :]
+        D = np.sum(diff ** 2, axis=-1)               # diff を二乗して、最後の軸で足す
+        labels = np.argmin(D, axis=1)          # 行ごとに一番小さい列の番号（前に習った関数）
+
 
         # 各グループの平均を、新しい重心にする
         new_centroids = []
         for i in range(k): # idxで回そうとしたが、ラベルが0,1,2,3しかないから、idxだと壊れるな。
             points_i = X[labels == i]
-            new_centroids.append(points_i.mean(axis=0))
+            if len(points_i) == 0:
+                new_centroids.append(X[rng.integers(len(X))]) # 動かしてみる
+            else:
+                new_centroids.append(points_i.mean(axis=0))
         new_centroids = np.array(new_centroids)
 
         # 重心が変化しなくなるまで繰り返す
@@ -78,11 +88,39 @@ def kmeans(X, k, max_iter=100, seed=0):
     inertia = np.sum((X - centroids[labels]) ** 2)
     return centroids, labels, inertia, it + 1   # it は 0 から数えるので +1
 
+def elbow(X, k_range=range(1, 11), n_init=10):
+    """各kについて n_init 回実行し、最小の inertia を返す"""
+    inertias = []
+    for i in k_range:
+        best = np.inf
+        for s in range(n_init):
+            _, _, inertia, _ = kmeans(X, i, seed=s)
+            if best > inertia:
+                best = inertia
+        inertias.append(best)
+    return inertias
+
+
+# -------------------間数実行箇所-------------------
 X, y_true = make_customers()
 # print(kmeans(X, 4))
-centroids, labels, inertia, n_iter = kmeans(X, 4)
+# t0 = time.perf_counter()
+# centroids, labels, inertia, n_iter = kmeans(X, 4)
 # 所属状況を確認
 # for t in range(4):
-#     print(t, np.bincount(labels[y_true == t], minlength=4))
+#     row = np.bincount(labels[y_true == t], minlength=4)
+#     print(t, " ".join([f"{v:4d}" for v in row]))
+# table = np.array([np.bincount(labels[y_true == t], minlength = 4) for t in range(4)])
+# print(table)
+# print(inertia, n_iter)
+# print(time.perf_counter() - t0, "秒")
 
-print(inertia, n_iter)
+inertias = elbow(X)
+print(np.array(inertias).reshape(-1,1))
+# plt.plot(range(1,11), inertias, marker='o')
+# plt.xlabel("k"); plt.ylabel("inertia"); plt.show()
+
+inertias = np.array(inertias)
+rate = 1 - inertias[1:] / inertias[:-1]   # k→k+1 で何割減ったか
+for k, r in zip(range(1, 10), rate):
+    print(f"{k}→{k+1}: {r:.0%}")
