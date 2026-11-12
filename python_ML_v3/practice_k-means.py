@@ -101,7 +101,7 @@ def elbow(X, k_range=range(1, 11), n_init=10):
     return inertias
 
 
-# -------------------間数実行箇所-------------------
+# -------------------間数実行箇所-----------------------------------------------------
 X, y_true = make_customers()
 # print(kmeans(X, 4))
 # t0 = time.perf_counter()
@@ -115,6 +115,8 @@ X, y_true = make_customers()
 # print(inertia, n_iter)
 # print(time.perf_counter() - t0, "秒")
 
+
+# step2------------------------------------------------------------------------------
 inertias = elbow(X)
 # print(np.array(inertias).reshape(-1,1))
 # plt.plot(range(1,11), inertias, marker='o')
@@ -138,15 +140,44 @@ inertias = elbow(X)
 #         max_diff_diff = d2
 #         max_k = k
 # print(f"{max_k+1}になるときが、最も減少幅が大きい")
-# def elbow_second_diff(inertias, k_start=1):
-#     """二階差分が最大になる k を返す"""
-#     inertias = np.asarray(inertias)
-#     d2 = np.diff(inertias, n=2)        # n=2 で、diff を2回取ったのと同じ結果になる
-#     return k_start + 1 + np.argmax(d2)  # d2[j] は k = k_start + j + 1 の点の曲がり具合
+def elbow_second_diff(inertias, k_start=1):
+    """二階差分が最大になる k を返す"""
+    inertias = np.asarray(inertias)
+    d2 = np.diff(inertias, n=2)        # n=2 で、diff を2回取ったのと同じ結果になる
+    return k_start + 1 + np.argmax(d2)  # d2[j] は k = k_start + j + 1 の点の曲がり具合
 
 # print(elbow_second_diff(inertias))
 
-# def elbow_second_diff_log(inertias, k_start=1):
-#     d2 = np.diff(np.log(inertias), n=2)
-#     return k_start + 1 + np.argmax(d2)
+def elbow_second_diff_log(inertias, k_start=1):
+    d2 = np.diff(np.log(inertias), n=2)
+    return k_start + 1 + np.argmax(d2)
 # print(elbow_second_diff_log(inertias))
+
+# step3------------------------------------------------------------------------------
+X_std = (X - X.mean(axis=0)) / X.std(axis=0)
+inertias_raw = elbow(X)
+inertias_std = elbow(X_std)
+
+fig, axes = plt.subplots(1, 2, figsize=(10,4))
+axes[0].plot(range(1,11), inertias_raw, marker='o')
+axes[0].set_title("raw")
+
+axes[1].plot(range(1,11), inertias_std, marker='o')
+axes[1].set_title("std")
+
+for ax in axes:
+    ax.set_xlabel("k"); ax.set_label("inertia")
+plt.tight_layout()
+# plt.savefig("step3_elbow.png")
+# plt.show()
+
+print("raw", elbow_second_diff(inertias_raw))
+print("std", elbow_second_diff(inertias_std))
+
+_, labels, _, _ = kmeans(X, 4)
+table = np.array([np.bincount(labels[y_true == t], minlength = 4) for t in range(4)])
+print(table)
+
+_, labels, _, _ = kmeans(X_std, 4)
+table = np.array([np.bincount(labels[y_true == t], minlength = 4) for t in range(4)])
+print(table)
