@@ -58,9 +58,16 @@ class KthLargest:
             heapq.heappush(self.heap, val)       # 初期要素数が k 未満のケースに対応
         elif val > self.heap[0]:
             heapq.heapreplace(self.heap, val)    # push と pop を個別に行わず、根の置換と木の下り走査1回で済ませる
-        # val <= self.heap[0] の場合はヒープを更新する必要がないため O(1) で通過
+                                                 # val <= self.heap[0] の場合はヒープを更新する必要がないため O(1) で通過
         return self.heap[0]
-
+"""
+# 素直に以下でも可
+    def add(self, val: int) -> int:
+        heapq.heappush(self.heap, val)
+        if len(self.heap) > self.k:
+            heapq.heappop(self.heap)      # 一番小さいのを落とす
+        return self.heap[0]               # 上位 k 個の最小 = k 番目に大きい
+"""
 
 # Your KthLargest object will be instantiated and called as such:
 # obj = KthLargest(k, nums)
