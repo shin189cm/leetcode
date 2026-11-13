@@ -43,13 +43,6 @@ from typing import List
 class Solution:
     def findKthLargest(self, nums: List[int], k: int) -> int:
         # -------------------------------------------------------------
-        # パターンA: C実装の最適化を活用（最も簡潔・k << N で極めて高速）
-        # 内部でサイズ k の最小ヒープを維持し、上位 k 個のリストを取得して末尾を返す
-        # 遅かった。とても。
-        # -------------------------------------------------------------
-        # return heapq.nlargest(k, nums)[-1]
-
-        # -------------------------------------------------------------
         # 別解1: 手動ループによるサイズ k の最小ヒープ維持（heapreplace 版）
         # これが最も早かった
         # -------------------------------------------------------------
@@ -63,6 +56,32 @@ class Solution:
         
         return min_heap[0]
 
+        
+        # =================================================================
+        # 模範解答: サイズ k の最小ヒープ（heappush + heappop 版）
+        # Time: O(N log k) / Space: O(k)
+        # 上位 k 個だけを残し、その中の最小値（根）が答え。
+        # =================================================================
+        # import heapq
+        #
+        # class Solution:
+        #     def findKthLargest(self, nums: list[int], k: int) -> int:
+        #         heap = []
+        #         for num in nums:
+        #             heapq.heappush(heap, num)
+        #             if len(heap) > k:
+        #                 heapq.heappop(heap)
+        #         return heap[0]
+        
+        
+        # -------------------------------------------------------------
+        # パターンA: C実装の最適化を活用（最も簡潔・k << N で極めて高速）
+        # 内部でサイズ k の最小ヒープを維持し、上位 k 個のリストを取得して末尾を返す
+        # 遅かった。とても。
+        # -------------------------------------------------------------
+        # return heapq.nlargest(k, nums)[-1]
+
+
         # -------------------------------------------------------------
         # パターンB: 一括 heapify + 削り落とし（N - k << N で有利）
         # 全体を O(N) で最小ヒープ化し、小さい方から N - k 回捨てて k 番目を根に残す
@@ -71,3 +90,20 @@ class Solution:
         # for _ in range(len(nums) - k):
         #     heapq.heappop(nums)
         # return nums[0]
+        
+        
+        # =================================================================
+        # 参考: 私の解答（符号反転で最大ヒープ化 → k 回 pop）
+        # Time: O(N + k log N) / Space: O(N)
+        # 改善点: pop は k-1 回で足り、最後は nums[0] を返せば res の未定義リスクも消える。
+        # =================================================================
+        # import heapq
+        #
+        # class Solution:
+        #     def findKthLargest(self, nums: list[int], k: int) -> int:
+        #         nums = [-num for num in nums]
+        #         heapq.heapify(nums) # time:O(N)
+        #         for _ in range(k):
+        #             res = heapq.heappop(nums)
+        #
+        #         return -res
