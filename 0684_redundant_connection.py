@@ -55,3 +55,26 @@ class Solution:
             size[root_v] += size[root_u]
 
         return []
+
+        # -----------------------------------------
+        # 時間計算量が N log(N) になる、シンプルケース
+        # -----------------------------------------
+        """
+        n = len(edges)
+        parent = list(range(n + 1))
+
+        def find(x: int) -> int:
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]  # 経路圧縮（path halving）
+                x = parent[x]
+            return x
+
+        for u, v in edges:
+            root_u, root_v = find(u), find(v)
+            # すでに同じ根を持つ = 連結済み → この辺が閉路を形成する余分な辺
+            if root_u == root_v:
+                return [u, v]
+            parent[root_u] = root_v
+
+        return []
+        """
