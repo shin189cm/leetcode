@@ -70,3 +70,27 @@ class Solution:
           uf.union(i, j)
 
     return uf.group_count
+
+# ---------------------------------------
+# 参考、自分の回答をもとに、整理したもの
+# ---------------------------------------
+"""
+class Solution:
+    def findCircleNum(self, isConnected: List[List[int]]) -> int:
+        n = len(isConnected)
+        visited = [False] * n
+        res = 0
+        for start in range(n):          # ノード（都市）単位でループ
+            if visited[start]:
+                continue
+            res += 1
+            visited[start] = True
+            stack = [start]
+            while stack:
+                cur = stack.pop()
+                for nxt in range(n):
+                    if isConnected[cur][nxt] == 1 and not visited[nxt]:
+                        visited[nxt] = True
+                        stack.append(nxt)
+        return res
+"""
