@@ -1,41 +1,72 @@
+"""Problem: 0547_number_of_provinces.py
+
+URL: https://leetcode.com/problems/number-of-provinces/
+Difficulty: Medium
+Category: Graph, Disjoint Set (Union-Find), Depth-First Search,
+Breadth-First Search
+
+Complexity:
+- Time: O(N^2 * alpha(N)) - 隣接行列の全要素（N * (N - 1) / 2 ペア）を走査し、各ペアに対してほぼ定数時間 alpha(N) で Union 操作を実行するため。実質 O(N^2)（N: 都市の数）
+- Space: O(N) - Union-Find 内部で各頂点の親 (parent) と木のサイズ (size) を保持するためにサイズ N の配列を確保するため。find はループ実装のため再帰スタックは使用しない
+
+Approach:
+1. 都市数 N 個の要素を管理する Union-Find データ構造を初期化する。初期のグループ総数は N とする。
+2. 隣接行列 isConnected の上三角部分 (i < j) を2重ループで走査する（無向グラフのため対角線および下三角は走査不要）。
+3. isConnected[i][j] == 1 の場合、都市 i と都市 j の間に辺が存在するため、union(i, j) を呼び出してグループを統合する。
+4. union 成功時にグループ総数をデクリメントし、すべての走査が完了した後の最終的なグループ総数 (group_count) を返す。
+
+Note:
+- find は再帰ではなくループで実装している（1周目で根を探し、2周目で経路圧縮）。
+  Union by Size を外した場合や N が大きい場合でも、Python の再帰上限に引っかからない。
 """
-nxn行列が与えられる。
-座標の要素が1の場合、座標同士が直接つながっている。
-provinceは、間接的につながっていても1つの集合体とみなす。
 
-方針は、dfsかbfsで、訪問済みを管理しながら、数を特定することか。
-最初に1の座標を抽出しておいて、queueに入れておいて、
-それを順番に進めていくか。
-その場合、
-別々の開始点から動いたが同一のprovinceだった場合にどうする？
-→1つとして扱いたい
+from typing import List
 
-上記の「最初に１を抽出する」方法をやめよう。
-左上の座標00から2重ループを走査しよう。走査したら、逐一、訪問済みノード処理をしよう。
-（0で塗り替えるのがわかりよいか。
-もし、1だった場合、while queue：4方向の隣接セルに走査を続ける、訪問済みにする、、、、
-走査終了後、result += 1する
-もし、右下のセルに到達したら、終了
+class UnionFind:
 
-注意で、isConnectedが0か1かで返さなければならない。座標じゃなくて、接続関係。
+  def __init__(self, n: int):
+    self.parent = list(range(n))
+    self.size = [1] * n
+    self.group_count = n
 
-"""
+  def find(self, x: int) -> int:
+    # 1. 根を探す
+    root = x
+    while self.parent[root] != root:
+      root = self.parent[root]
+
+    # 2. 経路圧縮: たどった頂点をすべて根に直接つなぎ直す
+    while self.parent[x] != root:
+      self.parent[x], x = root, self.parent[x]
+
+    return root
+
+  def union(self, x: int, y: int) -> bool:
+    root_x = self.find(x)
+    root_y = self.find(y)
+
+    if root_x == root_y:
+      return False
+
+    # Union by Size: 小さい木を大きい木の下に統合
+    if self.size[root_x] < self.size[root_y]:
+      root_x, root_y = root_y, root_x
+
+    self.parent[root_y] = root_x
+    self.size[root_x] += self.size[root_y]
+    self.group_count -= 1
+    return True
+
+
 class Solution:
-    def findCircleNum(self, isConnected: List[List[int]]) -> int:
-        n = len(isConnected)
-        res = 0
-        DIREC = ((1,0), (-1,0), (0,1), (0,-1))
-        queue = []
-        for i in range(n):
-            for j in range(i,n):
-                if isConnected[i][j] == 1:
-                    isConnected[i][j] = 0 # 訪問済み、塗り替える
-                    queue.append(j) # jを起点に探す
-                    while queue: # 起点がある限り
-                        curr_j = queue.pop()
-                        for nj in range(n):
-                            if isConnected[curr_j][nj] == 1:
-                                isConnected[curr_j][nj] = 0 # 訪問済み
-                                queue.append(nj)
-                    res += 1
-        return res
+
+  def findCircleNum(self, isConnected: List[List[int]]) -> int:
+    n = len(isConnected)
+    uf = UnionFind(n)
+
+    for i in range(n):
+      for j in range(i + 1, n):
+        if isConnected[i][j] == 1:
+          uf.union(i, j)
+
+    return uf.group_count
