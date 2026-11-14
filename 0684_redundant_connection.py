@@ -13,6 +13,20 @@ Complexity:
 - Space: O(N) 
   parent 配列および size 配列（各サイズ N + 1）を保持するため
 
+  Union-Find の計算量（経路圧縮 × union by size の組み合わせ）:
+  | 組み合わせ                       | 1回あたり                        |
+  |----------------------------------|--------------------------------|
+  | どちらもなし                      | 最悪 O(N)（木が一直線になる）    |
+  | union by size だけ               | 最悪 O(log N)                   |
+  | 完全圧縮だけ                      | 償却 O(log N)                   |
+  | path splitting だけ              | 償却 O(log N)                   |
+  | path halving だけ                | 償却 O(log N)                   |
+  | 完全圧縮 ＋ union by size         | 償却 O(α(N)) ≒ 定数            |
+  | path splitting ＋ union by size  | 償却 O(α(N)) ≒ 定数            |
+  | path halving ＋ union by size ★ | 償却 O(α(N)) ≒ 定数            |
+  経路圧縮の方式を変えても計算量は変わらない。ほぼ定数になるのは union by size と組み合わせたときだけ。
+  ★ = 本実装
+
 Approach:
 1. 木（N ノード・N - 1 エッジ）に1本エッジを足すと、閉路がちょうど1つできる。
    「エッジ (u, v) を足すと閉路ができる」⇔「足す前から u と v がすでに連結している」。
