@@ -18,7 +18,7 @@ rng = np.random.default_rng(0)
 # 100人の顧客 × 各10件の購買ログ。ラベルは「顧客ごと」に決まり、特徴量とは無関係（本当の実力はAUC 0.5）
 n_users, per_user = 100, 10
 groups = np.repeat(np.arange(n_users), per_user)
-user_vec = rng.normal(size=(n_users, 5))          # 顧客固有のクセ
+user_vec = rng.normal(size=(n_users, 5))          # 顧客固有のクセnm   b                          bv
 X = user_vec[groups] + rng.normal(scale=0.1, size=(n_users * per_user, 5))
 y = rng.integers(0, 2, n_users)[groups]
 
