@@ -1,44 +1,50 @@
-"""
-問いの確認。
-建物を１つとばしで盗む。
-ハウスごとの盗める金額がnums。
-盗む金額を最大化したい。
-dpで比較と思われる。
-
-制約の確認。
-numsの長さは、1以上、100以下。
-numsの要素の値は、0以上、400以下。
-
-進め方
-dp配列で、その家までで盗み切ったときの最大金額を管理する。
-つまり初期値は0でおいておく。
-0-indexedで考える。
-dp[0] = nums[0]
-dp[1] = nums[1]
-dp[2] = max(dp[1], dp[0]+nums[2]) # nums[2]の家から盗まないほうが高いか否か
-return dp[len(nums)]
-
-と思ったが、dpで持たなくてもよい。直前2か所までの家の値のみ保持できればok
-修正する。
-dp_last_2  = nums[0]
-dp_last_1  = nums[1]
-dp[i] = max(dp_last_1, dp_last_2 + nums[i]) # nums[i]の家から盗まないほうが高いか否か
-
-"""
 class Solution:
     def rob(self, nums: list[int]) -> int:
-        n = len(nums)
-        if n == 1:
-            return nums[0]
-        if n == 2:
-            return max(nums)
-        
-        dp_last_2  = nums[0]
-        dp_last_1  = max(nums[0], nums[1])
-        dp_curr = 0
+        """
+        Problem: 198_house_robber.py
+        URL: https://leetcode.com/problems/house-robber/
+        Difficulty: Medium
+        Category: Dynamic Programming
 
-        for i in range(2, n):
-            dp_curr = max(dp_last_1, dp_last_2 + nums[i]) # nums[i]の家から盗まないほうが高いか否か
-            dp_last_2 = dp_last_1
-            dp_last_1 = dp_curr
-        return dp_curr
+        Complexity:
+        - Time: O(N)
+            - 配列 nums の長さ N に対し、先頭から末尾まで1回の走査（ループ）で完了するため O(N)
+        - Space: O(1)
+            - 遷移に必要な直前2つの状態（rob1: i-2軒目までの最大値、rob2: i-1軒目までの最大値）のみを変数として保持するため、定数空間 O(1)
+
+        Approach:
+        1. 問題の本質と部分構造
+            - 各家 i に対して選択肢は2つ存在する：
+                a. 家 i を盗む場合: 隣接する家 i-1 は盗めないため、得られる価値は「家 i-2 までの最大値 + nums[i]」
+                b. 家 i を盗まない場合: 家 i-1 までの最大値をそのまま引き継ぐ（「家 i-1 までの最大値」）
+            - したがって、家 i までの最大利益を dp[i] とすると漸化式は以下の通りとなる：
+                dp[i] = max(dp[i - 1], dp[i - 2] + nums[i])
+        2. 空間最適化 (DP配列から定数空間へ)
+            - dp[i] の計算には dp[i - 1] と dp[i - 2] の2つの値しか参照しない
+            - 配列全体を保持する代わりに、2つのポインタ/変数で状態をスライド更新することで空間計算量を O(1) に削減する
+                - rob1: 2軒前までの最大値（初期値: 0）
+                - rob2: 1軒前までの最大値（初期値: 0）
+            - 各ループごとに current = max(rob2, rob1 + num) を求め、rob1, rob2 = rob2, current と更新していく
+
+        memo:
+        - DPの基本問題（一次元DP）であり、「直前の状態に依存する制約（隣接する要素を連続で選べない）」を状態遷移に落とし込む典型パターン
+        - 配列サイズ N が 0 または 1 の境界値に対しても、本実装（初期値を 0 とし、nums のループを回す構造）であれば追加の条件分岐なしで安全に処理可能
+        - 発展問題として、家が円環状に並ぶ「213. House Robber II」が存在するが、そちらは「0番目を含めて末尾を除く場合」と「1番目を含めて末尾を含む場合」の2回本アルゴリズムを呼び出すことで解くことができる
+        - 2026-11-20 再トライ：ノーヒントAC（約14分）。直前2軒の変数で解いたが、n == 1 と n == 2 を if で特別扱いし、
+          2軒前を nums[0]、1軒前を max(nums[0], nums[1]) で始める形にした。端のケースで2回 WA（提出してから気づいた）。
+          本解答のように、初期値を 0 にして nums 全体をループすれば、特別扱いが要らない
+        - Codility など出し直しできないテストでは、要素数 1・2 の端のケースを提出前に自分で試す
+        - 計算量は、結論（時間 O(N)、空間 O(1)）を最初の1文で言う。dp 配列なら空間 O(N) で、それを2変数に減らした、まで言うと工夫が伝わる
+        """
+        # rob1: i-2軒目までの最大値
+        # rob2: i-1軒目までの最大値
+        rob1 = 0
+        rob2 = 0
+
+        for num in nums:
+            # 「この家を盗まない場合(rob2)」と「この家を盗む場合(rob1 + num)」の大きい方
+            current = max(rob2, rob1 + num)
+            rob1 = rob2 # 次のループから見て2軒前までの値
+            rob2 = current # 次のループから見て1軒前までの値
+
+        return rob2
