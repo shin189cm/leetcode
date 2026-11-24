@@ -176,11 +176,79 @@ customer_clustering = customer[["mean", "median", "max", "min", "membership_peri
 # print(customer_clustering.head())
 
 sc = StandardScaler()
-customer_clustering_sc = sc.fit_transform(customer_clustering) # fitもtransformもするのか
+customer_clustering_sc = sc.fit_transform(customer_clustering) # fit（平均と標準偏差を覚える）もtransform（その値で変換）もする
 
 kmeans = KMeans(n_clusters=4, random_state=0)
 kmeans.fit(customer_clustering_sc)
 customer_clustering = customer_clustering.assign(cluster = kmeans.labels_)
 
-print(customer_clustering["cluster"].unique())
-print(customer_clustering.head())
+# print(customer_clustering["cluster"].unique())
+# print(customer_clustering.head())
+
+
+# 33 クラスタごとの概要
+print(customer_clustering.groupby("cluster", as_index=False).agg(
+    size=("cluster", "size"), 
+    mean=("mean", "mean"),
+    median=("median", "mean"),
+    max=("max", "mean"),
+    min=("min", "mean"),
+    membership_period=("membership_period", "mean"))
+    )
+
+
+# 34
+from sklearn.decomposition import PCA
+X = customer_clustering_sc
+pca = PCA(n_components=2)
+pca.fit(X) # μとσを暗記する
+x_pca = pca.transform(X) # 暗記したμとσで標準化する
+pca_df = pd.DataFrame(x_pca)
+pca_df["cluster"] = customer_clustering["cluster"]
+# print(pca_df.head())
+
+# for i in range(4):
+#     tmp = pca_df.loc[pca_df["cluster"] == i]
+#     plt.scatter(tmp[0], tmp[1])
+# plt.show()
+
+
+# 35 クラスタリング結果をもとに、退会顧客の傾向を探る
+# print(customer.columns)
+# print(customer_clustering.head())
+# customer_clustering = pd.merge(customer_clustering, customer[["customer_id", "is_deleted"]], on="customer_id", how="left")
+# indexで紐づけできるので、mergeではなく、concatで結合できる。
+customer_clustering = pd.concat([customer_clustering, customer], axis=1)
+# print(
+#     customer_clustering.groupby(["cluster", "is_deleted"], as_index=False).count()[["cluster", "is_deleted", "customer_id"]]
+# )
+
+
+# 36 
+# print(uselog.dtypes)
+uselog["usedate"] = pd.to_datetime(uselog["usedate"])
+uselog["年月"] = uselog["usedate"].dt.to_period("M")
+# print(uselog.pivot_table(index="年月", columns="customer_id", aggfunc="count"))
+uselog_month = uselog.groupby(["年月", "customer_id"], as_index=False).agg(count=("customer_id", "count"))
+print(uselog_month.head())
+
+month_list = sorted(uselog_month["年月"].unique())
+tables = []
+# print(month_list)
+for i in range(6, len(month_list)):
+    curr_month = month_list[i]
+    temp = uselog_month.loc[uselog_month["年月"] == curr_month]
+    for j in range(1,7):
+        past = uselog_month.loc[uselog_month["年月"] == curr_month - j][["customer_id", "count"]]
+        past = past.rename(columns={"count": f"count_{j}"})
+        temp = pd.merge(temp, 
+                        past, 
+                        on=["customer_id"], how="left")
+    tables.append(temp)
+predict_data = pd.concat(tables, ignore_index=True)
+print(predict_data.head())
+# shitでの書き方もある。
+
+
+# 次回はここから。
+# 37
