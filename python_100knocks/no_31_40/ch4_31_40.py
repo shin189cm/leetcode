@@ -159,6 +159,8 @@ from rich import print
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+from sklearn import linear_model
+import sklearn.model_selection
 
 # 東アジアの幅（全角文字）を考慮して表示位置を揃える
 pd.set_option("display.unicode.east_asian_width", True)
@@ -187,14 +189,14 @@ customer_clustering = customer_clustering.assign(cluster = kmeans.labels_)
 
 
 # 33 クラスタごとの概要
-print(customer_clustering.groupby("cluster", as_index=False).agg(
-    size=("cluster", "size"), 
-    mean=("mean", "mean"),
-    median=("median", "mean"),
-    max=("max", "mean"),
-    min=("min", "mean"),
-    membership_period=("membership_period", "mean"))
-    )
+# print(customer_clustering.groupby("cluster", as_index=False).agg(
+#     size=("cluster", "size"), 
+#     mean=("mean", "mean"),
+#     median=("median", "mean"),
+#     max=("max", "mean"),
+#     min=("min", "mean"),
+#     membership_period=("membership_period", "mean"))
+#     )
 
 
 # 34
@@ -230,7 +232,7 @@ uselog["usedate"] = pd.to_datetime(uselog["usedate"])
 uselog["年月"] = uselog["usedate"].dt.to_period("M")
 # print(uselog.pivot_table(index="年月", columns="customer_id", aggfunc="count"))
 uselog_month = uselog.groupby(["年月", "customer_id"], as_index=False).agg(count=("customer_id", "count"))
-print(uselog_month.head())
+# print(uselog_month.head())
 
 month_list = sorted(uselog_month["年月"].unique())
 tables = []
@@ -246,9 +248,50 @@ for i in range(6, len(month_list)):
                         on=["customer_id"], how="left")
     tables.append(temp)
 predict_data = pd.concat(tables, ignore_index=True)
-print(predict_data.head())
 # shitでの書き方もある。
+predict_data = predict_data.dropna()
+predict_data = predict_data.reset_index(drop=True)
+# print(predict_data.head())
 
 
-# 次回はここから。
 # 37
+# print(customer.head())
+predict_data = predict_data.merge(customer[["customer_id", "start_date"]], on="customer_id", how="left")
+predict_data["start_month"] = pd.to_datetime(predict_data["start_date"]).dt.to_period("M")
+# predict_data["period"] = (predict_data["年月"] - predict_data["start_month"]).apply(lambda x: x.n)
+predict_data["period"] = (predict_data["年月"].astype("int64") - predict_data["start_month"].astype("int64"))
+# print(predict_data.head())
+# print(predict_data[["年月", "start_date", "period"]].head())
+# print(predict_data["period"].dtype)
+
+
+# 38
+predict_data = predict_data.loc[predict_data["start_month"] >= pd.Period("2018-04", freq="M")]
+
+model = linear_model.LinearRegression()
+# print(predict_data.columns)
+X = predict_data[['count_1', 'count_2', 'count_3','count_4', 'count_5', 'count_6', 'period']]
+y = predict_data['count']
+X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, random_state=0)
+model.fit(X_train, y_train)
+# print(model.score(X_train, y_train))
+# print(model.score(X_test, y_test))
+
+
+# 39
+coef = pd.DataFrame(
+    {"feature_name":X.columns,
+     "coefficient":model.coef_}
+)
+# print(coef)
+
+
+# 40
+x1 = [3,4,4,6,8,7,8]
+x2 = [2,2,3,3,4,6,8]
+x_pred = pd.DataFrame(
+    data=[x1, x2],
+    columns=['count_1', 'count_2', 'count_3','count_4', 'count_5', 'count_6', 'period']
+)
+print(model.predict(x_pred))
+# uselog_month.to_csv("use_log_month.csv", index=False)
