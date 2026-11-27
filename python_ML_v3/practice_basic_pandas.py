@@ -22,3 +22,5 @@ customer_join = (
         .astype({"n": int})
     )
 print(customer_join)
+
+# 20261129にrollingに着手予定
