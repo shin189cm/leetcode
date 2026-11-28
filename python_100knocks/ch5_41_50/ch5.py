@@ -241,3 +241,34 @@ import matplotlib_fontja
 # 東アジアの幅（全角文字）を考慮して表示位置を揃える
 pd.set_option("display.unicode.east_asian_width", True)
 
+customer = pd.read_csv("customer_join.csv")
+uselog_months = pd.read_csv("use_log_months.csv")
+# print(customer.head())
+# print(uselog_months.head())
+
+# 41 1ヶ月前の利用回数をマージする
+# idで結合するか
+# shiftを使う方法もある、が今回はやめる
+# uselogを1ヶ月ずらす
+uselog_months["年月"] = pd.to_datetime(uselog_months["年月"], format="%Y-%m").dt.to_period("M")
+month_list = sorted(uselog_months["年月"].unique())
+uselog = []
+for item in month_list:
+    curr = uselog_months.loc[uselog_months["年月"] == item]
+    curr = curr.rename(columns={"count":"count_0"})
+    prev = uselog_months.loc[uselog_months["年月"] == item - 1]
+    prev = prev.rename(columns={"count":"count_1"})
+    curr = pd.merge(curr, prev[["customer_id", "count_1"]], on="customer_id", how="left")
+    uselog.append(curr)
+uselog = pd.concat(uselog, ignore_index=True)
+# print(res.head())
+# print(res.loc[res["年月"] == pd.Period("2018-05", freq="M")].head())
+
+
+# 42
+customer["年月"] = pd.to_datetime(customer["end_date"]).dt.to_period("M")
+customer["年月"] = customer["年月"] - 1
+exit_uselog = pd.merge(uselog, customer, on=["customer_id", "年月"], how="left")
+exit_uselog = exit_uselog.dropna(subset=["name"])
+print(exit_uselog.head())
+print(len(exit_uselog))
