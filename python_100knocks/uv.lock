@@ -1166,6 +1166,20 @@ wheels = [
 ]
 
 [[package]]
+name = "matplotlib-fontja"
+version = "1.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "matplotlib", version = "3.9.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "matplotlib", version = "3.10.9", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
+    { name = "matplotlib", version = "3.11.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1b/0a/6710bc330f4372287e73c7fbc61d27b9a3c93ff19d6bf1d492b3482d3e52/matplotlib_fontja-1.1.0.tar.gz", hash = "sha256:eb0ad93eea01ceac6b563bccce9959335bfd487824160712a81984142ffb8e44", size = 4164296, upload-time = "2025-04-24T13:20:27.892Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/32/d8/7c0487747902ced21faf4cc6f9cfd8467a845261908dbdaf9e256faa9119/matplotlib_fontja-1.1.0-py2.py3-none-any.whl", hash = "sha256:930603aaffd420ad89a6cf3399f074b14e939e8e349843ed1cb558ac97c8c94a", size = 4175561, upload-time = "2025-04-24T13:20:26.216Z" },
+]
+
+[[package]]
 name = "mdurl"
 version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1984,6 +1998,7 @@ dependencies = [
     { name = "matplotlib", version = "3.9.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "matplotlib", version = "3.10.9", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
     { name = "matplotlib", version = "3.11.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "matplotlib-fontja" },
     { name = "numpy", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
@@ -2000,6 +2015,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "matplotlib", specifier = ">=3.9.4" },
+    { name = "matplotlib-fontja", specifier = ">=1.1.0" },
     { name = "numpy", specifier = ">=2.0.2" },
     { name = "openpyxl", specifier = ">=3.1.5" },
     { name = "pandas", specifier = ">=2.3.3" },
